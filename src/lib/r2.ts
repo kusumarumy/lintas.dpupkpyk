@@ -3,9 +3,9 @@ export type GeoJSONFeatureCollection = {
   features: Array<{ type: 'Feature'; geometry: unknown; properties: Record<string, unknown> }>;
 };
 
-const baseUrl = process.env.NEXT_PUBLIC_R2_BASE_URL?.replace(/\/$/, '');
+const baseUrl = process.env.NEXT_R2_BASE_URL?.replace(/\/$/, '');
 export function r2Url(key: string) {
-  if (!baseUrl) throw new Error('NEXT_PUBLIC_R2_BASE_URL belum diatur.');
+  if (!baseUrl) throw new Error('NEXT_R2_BASE_URL belum diatur.');
   return `${baseUrl}/${key.split('/').map(encodeURIComponent).join('/')}`;
 }
 

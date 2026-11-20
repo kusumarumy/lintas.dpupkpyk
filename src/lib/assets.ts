@@ -1,6 +1,6 @@
 
 const R2_BASE =
-  process.env.NEXT_PUBLIC_R2_BASE_URL ??
+  process.env.NEXT_R2_BASE_URL ??
   "https://lintas-dataset.ruli-andaru.workers.dev";
 
 export function r2Asset(filename: string): string {

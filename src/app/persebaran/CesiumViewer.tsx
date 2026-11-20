@@ -30,7 +30,7 @@ type MeasurementResult = {
   pointCount: number;
 };
 const R2_BASE_URL = (
-  process.env.NEXT_PUBLIC_R2_BASE_URL ||
+  process.env.NEXT_R2_BASE_URL ||
   "https://lintas-dataset.ruli-andaru.workers.dev"
 ).replace(/\/$/, "");
 

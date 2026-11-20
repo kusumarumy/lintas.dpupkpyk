@@ -22,7 +22,7 @@ const CesiumViewer = dynamic(
   }
 );
 const R2_BASE_URL =
-  process.env.NEXT_PUBLIC_R2_BASE_URL?.replace(/\/$/, "") ?? "";
+  process.env.NEXT_R2_BASE_URL?.replace(/\/$/, "") ?? "";
 
 const DATA_URL = R2_BASE_URL
   ? `${R2_BASE_URL}/vektor/Jembatan.geojson`
@@ -226,7 +226,7 @@ const handleMeasurementUpdate = (result: MeasurementResult) => {
 
   const loadData = useCallback(async () => {
     if (!DATA_URL) {
-      setError("NEXT_PUBLIC_R2_BASE_URL belum dikonfigurasi.");
+      setError("NEXT_R2_BASE_URL belum dikonfigurasi.");
       setLoading(false);
       return;
     }

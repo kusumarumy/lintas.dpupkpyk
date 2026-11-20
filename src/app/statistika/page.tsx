@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import "./statistika.css";
 
 const R2_BASE_URL =
-  process.env.NEXT_PUBLIC_R2_BASE_URL?.replace(/\/$/, "");
+  process.env.NEXT_R2_BASE_URL?.replace(/\/$/, "");
 
 const DATA_URL = R2_BASE_URL
   ? `${R2_BASE_URL}/vektor/Jembatan.geojson`

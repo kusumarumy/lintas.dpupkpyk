@@ -19,6 +19,6 @@
 - `SESSION_SECRET`
 - `AUTH_USERS_JSON`
 - `CESIUM_ION_TOKEN` (buat token baru yang dibatasi; token lama sempat tertanam di source PHP)
-- `NEXT_PUBLIC_R2_BASE_URL` (URL Worker yang benar)
+- `NEXT_R2_BASE_URL` (URL Worker yang benar)
 
 Jangan deploy sebelum token Cesium diganti, aset yang hilang ditambahkan, data atribut/statistik disambungkan, dan build diuji.

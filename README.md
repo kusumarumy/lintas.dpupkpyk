@@ -17,7 +17,7 @@ Migrasi fondasi dari aplikasi PHP Native. UI lama dijadikan acuan; file PHP sumb
 
 5. Masukkan username dan hash ke `AUTH_USERS_JSON`. Jangan masukkan password plaintext.
 6. Isi `SESSION_SECRET` dengan secret acak minimal 32 karakter. Contoh generator: `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`.
-7. Isi `NEXT_PUBLIC_R2_BASE_URL` dengan URL Worker Cloudflare yang benar-benar digunakan. Jangan menebak URL atau object key.
+7. Isi `NEXT_R2_BASE_URL` dengan URL Worker Cloudflare yang benar-benar digunakan. Jangan menebak URL atau object key.
 8. Jalankan `npm run dev`.
 
 ## Perintah
