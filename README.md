@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # LINTAS — Next.js + TypeScript
 
 Migrasi fondasi dari aplikasi PHP Native. UI lama dijadikan acuan; file PHP sumber disimpan di `migration-reference/` untuk audit perbandingan selama proses migrasi. Aplikasi runtime tidak membutuhkan PHP atau MySQL.
@@ -49,3 +50,6 @@ Isi `CESIUM_ION_TOKEN` pada `.env.local` dan Vercel Environment Variables. Token
 - PDF yang ada di ZIP disalin ke `public/documents/` sebagai fallback sementara. Setelah key dan endpoint Worker R2 dipastikan, pindahkan URL dokumen ke R2.
 - Folder `assets/` asli (logo, foto, profil, dan ikon) tidak terdapat di ZIP yang diterima. Referensi path lama dipertahankan ke `/assets/`, sehingga aset itu perlu disalin dari sumber aslinya atau diarahkan ke key R2 yang benar.
 - Halaman statistika masih menunggu skema dan data GeoJSON R2; tidak ada angka yang dibuat-buat.
+=======
+LINTAS
+>>>>>>> 6043b82385faceb4dc1440e3e4ffd8c72008b61c
