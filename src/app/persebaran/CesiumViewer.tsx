@@ -29,12 +29,7 @@ type MeasurementResult = {
   elevationM?: number;
   pointCount: number;
 };
-const R2_BASE_URL = (
-  process.env.NEXT_R2_BASE_URL ||
-  "https://lintas-dataset.ruli-andaru.workers.dev"
-).replace(/\/$/, "");
-
-const GEOJSON_URL = `${R2_BASE_URL}/vektor/Jembatan.geojson`;
+const DATA_URL = "/api/geojson/jembatan";
 const DTM_ASSET_ID = 4185927;
 
 function createBasemapProvider(
@@ -504,20 +499,18 @@ localViewer.camera.flyTo({
 });
 ;
 
-        // =====================================================
-        // 2. LOAD GEOJSON LANGSUNG DARI CLOUDFLARE R2
-        // =====================================================
+        // 2. LOAD GEOJSON MELALUI API SERVER
 
-        console.log("Memuat GeoJSON dari R2:", GEOJSON_URL);
+console.log("Memuat GeoJSON melalui API:", DATA_URL);
 
-        const dataSource =
-          await Cesium.GeoJsonDataSource.load(GEOJSON_URL, {
-            clampToGround: true,
-            markerSize: 10,
-            markerColor: Cesium.Color.CYAN,
-            stroke: Cesium.Color.CYAN,
-            strokeWidth: 3,
-          });
+const dataSource =
+  await Cesium.GeoJsonDataSource.load(DATA_URL, {
+    clampToGround: true,
+    markerSize: 10,
+    markerColor: Cesium.Color.CYAN,
+    stroke: Cesium.Color.CYAN,
+    strokeWidth: 3,
+  });
 
         if (
           cancelled ||

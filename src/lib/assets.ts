@@ -1,10 +1,6 @@
 
-const R2_BASE =
-  process.env.NEXT_R2_BASE_URL ??
-  "https://lintas-dataset.ruli-andaru.workers.dev";
-
 export function r2Asset(filename: string): string {
-  return `${R2_BASE.replace(/\/$/, "")}/assets/${encodeURIComponent(filename)}`;
+  return `/api/r2/assets/${encodeURIComponent(filename)}`;
 }
 
 export const LINTAS_ASSETS = {

@@ -21,12 +21,8 @@ const CesiumViewer = dynamic(
     ),
   }
 );
-const R2_BASE_URL =
-  process.env.NEXT_R2_BASE_URL?.replace(/\/$/, "") ?? "";
+const DATA_URL = "/api/geojson/jembatan";
 
-const DATA_URL = R2_BASE_URL
-  ? `${R2_BASE_URL}/vektor/Jembatan.geojson`
-  : "";
 type MeasurementMode = "none" | "distance" | "area" | "identify";
 
 type MeasurementResult = {
@@ -131,9 +127,13 @@ function normalizeFeature(feature: Raw, index: number): BridgeMapItem {
 
     if (/^https?:\/\//i.test(url)) return url;
 
-    return R2_BASE_URL
-      ? `${R2_BASE_URL}/${url.replace(/^\/+/, "")}`
-      : "";
+    const key = url
+      .replace(/^\/+/, "")
+      .split("/")
+      .map((segment) => encodeURIComponent(segment))
+      .join("/");
+
+    return key ? `/api/r2/${key}` : "";
   };
 const nama = textValue(
   properties.nama,
@@ -225,11 +225,6 @@ const handleMeasurementUpdate = (result: MeasurementResult) => {
   const [updated, setUpdated] = useState("");
 
   const loadData = useCallback(async () => {
-    if (!DATA_URL) {
-      setError("NEXT_R2_BASE_URL belum dikonfigurasi.");
-      setLoading(false);
-      return;
-    }
 
     setLoading(true);
     setError("");

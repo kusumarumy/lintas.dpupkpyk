@@ -5,12 +5,7 @@ import Header from "@/components/Header";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./statistika.css";
 
-const R2_BASE_URL =
-  process.env.NEXT_R2_BASE_URL?.replace(/\/$/, "");
-
-const DATA_URL = R2_BASE_URL
-  ? `${R2_BASE_URL}/vektor/Jembatan.geojson`
-  : "";
+const DATA_URL = "/api/geojson/jembatan";
 
 type Raw = Record<string, unknown>;
 
@@ -266,14 +261,6 @@ export default function StatistikaPage() {
   const [updated, setUpdated] = useState("");
 
   const loadData = useCallback(async () => {
-    if (!DATA_URL) {
-      setError(
-        "URL GeoJSON belum dikonfigurasi pada environment."
-      );
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
     setError("");
 
