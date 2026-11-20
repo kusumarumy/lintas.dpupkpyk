@@ -1,0 +1,680 @@
+
+/* =========================================
+   LINTAS — INFRASTRUCTURE DIGITAL TWIN
+========================================= */
+
+.digital-twin-page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #101c2b;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Header is fixed at 70px */
+
+.digital-twin-workspace {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 70px);
+  min-height: 560px;
+  margin-top: 70px;
+  overflow: hidden;
+  background: #101c2b;
+  isolation: isolate;
+}
+
+.dt-cesium-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.dt-cesium-container .cesium-viewer,
+.dt-cesium-container .cesium-viewer-cesiumWidgetContainer,
+.dt-cesium-container .cesium-widget,
+.dt-cesium-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* =========================================
+   TOP PROJECT BAR
+========================================= */
+
+.dt-topbar {
+  position: absolute;
+  top: 16px;
+  left: 18px;
+  right: 18px;
+  z-index: 20;
+  min-height: 62px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  pointer-events: none;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 12px;
+  background: rgba(12,27,43,.83);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 5px 25px rgba(0,0,0,.2);
+}
+
+.dt-project-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dt-project-icon {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255,194,14,.5);
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  color: #ffc20e;
+  font-size: 13px;
+  font-weight: 800;
+  background: rgba(255,194,14,.09);
+}
+
+.dt-project-title {
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+}
+
+.dt-project-subtitle {
+  color: #9aadc1;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.dt-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #d5e0ed;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.dt-status-dot {
+  width: 8px;
+  height: 8px;
+  display: inline-block;
+  border-radius: 50%;
+  background: #28c985;
+  box-shadow: 0 0 10px rgba(40,201,133,.65);
+  flex-shrink: 0;
+}
+
+.dt-status-dot.loading {
+  background: #f0ad35;
+  box-shadow: 0 0 10px rgba(240,173,53,.6);
+}
+
+/* =========================================
+   LEFT TOOLBAR
+========================================= */
+
+.dt-toolbar {
+  position: absolute;
+  top: 96px;
+  left: 18px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 10px;
+  width: 54px;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 12px;
+  background: rgba(12,27,43,.91);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 25px rgba(0,0,0,.25);
+}
+
+.dt-toolbar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.dt-toolbar button {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: #c8d6e6;
+  background: transparent;
+  font-size: 17px;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.dt-toolbar button:hover,
+.dt-toolbar button.active {
+  color: #ffc20e;
+  background: rgba(255,194,14,.13);
+  border-color: rgba(255,194,14,.25);
+}
+
+.dt-toolbar button:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+.dt-toolbar-divider {
+  width: 26px;
+  height: 1px;
+  background: rgba(255,255,255,.17);
+}
+
+/* =========================================
+   RIGHT CONTROL PANEL
+========================================= */
+
+.dt-right-panel {
+  position: absolute;
+  top: 96px;
+  right: 18px;
+  bottom: 20px;
+  width: 330px;
+  z-index: 25;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #52677e transparent;
+  pointer-events: auto;
+}
+
+.dt-panel {
+  width: 100%;
+  min-height: 100%;
+  color: white;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 12px;
+  background: rgba(13,29,46,.94);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 8px 30px rgba(0,0,0,.3);
+}
+
+.dt-panel-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+
+.dt-eyebrow {
+  color: #e6b947;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+}
+
+.dt-panel-header h3 {
+  color: white;
+  font-size: 17px;
+  font-weight: 700;
+  margin: 5px 0 0;
+}
+
+.dt-panel-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  color: #ffc20e;
+  border: 1px solid rgba(255,194,14,.25);
+  background: rgba(255,194,14,.09);
+  border-radius: 9px;
+  font-size: 20px;
+}
+
+.dt-panel-content {
+  padding: 19px;
+}
+
+.dt-section-heading {
+  margin-bottom: 13px;
+  color: #8ea5bc;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .9px;
+}
+
+.dt-section-spaced {
+  margin-top: 25px;
+}
+
+/* =========================================
+   LAYER EXPLORER
+========================================= */
+
+.dt-layer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px 10px;
+  margin-bottom: 7px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 8px;
+  background: rgba(255,255,255,.035);
+}
+
+.dt-layer-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.dt-layer-indicator {
+  color: #ffc20e;
+  font-size: 20px;
+}
+
+.dt-layer-info strong,
+.dt-setting-row strong {
+  display: block;
+  color: #edf4fc;
+  font-size: 11px;
+}
+
+.dt-layer-info small,
+.dt-setting-row small {
+  display: block;
+  margin-top: 4px;
+  color: #8ea3b8;
+  font-size: 9px;
+}
+
+.dt-switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 19px;
+  flex-shrink: 0;
+}
+
+.dt-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.dt-switch span {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  border-radius: 20px;
+  background: #46566a;
+  transition: .2s;
+}
+
+.dt-switch span::before {
+  content: "";
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  left: 3px;
+  top: 3px;
+  border-radius: 50%;
+  background: white;
+  transition: .2s;
+}
+
+.dt-switch input:checked + span {
+  background: #c69a2b;
+}
+
+.dt-switch input:checked + span::before {
+  transform: translateX(15px);
+}
+
+.dt-switch input:disabled + span {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   INFORMATION CARDS
+========================================= */
+
+.dt-info-card {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 8px;
+  background: rgba(255,255,255,.045);
+}
+
+.dt-info-card span {
+  color: #9aadc1;
+  font-size: 11px;
+}
+
+.dt-info-card strong {
+  color: #ffc20e;
+  font-size: 13px;
+}
+
+.dt-helper {
+  margin-top: 17px;
+  color: #849bb1;
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+/* =========================================
+   ANALYSIS TOOLS
+========================================= */
+
+.dt-action-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px;
+  margin-bottom: 9px;
+  text-align: left;
+  color: white;
+  background: rgba(255,255,255,.045);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.dt-action-card:hover,
+.dt-action-card.selected {
+  border-color: rgba(255,194,14,.5);
+  background: rgba(255,194,14,.09);
+}
+
+.dt-action-card:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.dt-action-icon {
+  width: 37px;
+  height: 37px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: #ffc20e;
+  font-size: 20px;
+  border-radius: 8px;
+  background: rgba(255,194,14,.1);
+}
+
+.dt-action-card strong {
+  display: block;
+  font-size: 11px;
+}
+
+.dt-action-card small {
+  display: block;
+  margin-top: 5px;
+  color: #93a8bc;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.dt-measure-status,
+.dt-result-card {
+  padding: 13px;
+  margin-top: 13px;
+  border-radius: 8px;
+  background: rgba(255,194,14,.08);
+  border: 1px solid rgba(255,194,14,.2);
+  color: #e8c96f;
+  font-size: 10px;
+}
+
+.dt-measure-status small {
+  display: block;
+  margin-top: 6px;
+  color: #a8b8c9;
+}
+
+.dt-result-card span {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.dt-result-card strong {
+  display: block;
+  margin-top: 9px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.dt-secondary-button {
+  width: 100%;
+  margin-top: 13px;
+  padding: 11px;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 8px;
+  color: #dce8f4;
+  background: rgba(255,255,255,.05);
+  cursor: pointer;
+}
+
+.dt-secondary-button:hover {
+  background: rgba(255,255,255,.12);
+}
+
+/* =========================================
+   LIGHTING STUDIO
+========================================= */
+
+.dt-lighting-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 9px;
+}
+
+.dt-lighting-card {
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 9px;
+  color: #dce7f4;
+  background: rgba(255,255,255,.04);
+  cursor: pointer;
+  transition: .2s;
+}
+
+.dt-lighting-card span {
+  font-size: 22px;
+}
+
+.dt-lighting-card strong {
+  font-size: 11px;
+}
+
+.dt-lighting-card:hover,
+.dt-lighting-card.selected {
+  border-color: rgba(255,194,14,.55);
+  background: rgba(255,194,14,.1);
+  color: #ffc20e;
+}
+
+.dt-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+/* =========================================
+   BOTTOM STATUS
+========================================= */
+
+.dt-left-bottom {
+  position: absolute;
+  bottom: 20px;
+  left: 18px;
+  z-index: 15;
+  display: flex;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.dt-coordinate,
+.dt-model-status {
+  padding: 10px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  background: rgba(12,27,43,.85);
+  backdrop-filter: blur(12px);
+}
+
+.dt-coordinate span,
+.dt-model-status span {
+  color: #8ea5bc;
+  font-size: 8px;
+  letter-spacing: .8px;
+}
+
+.dt-coordinate strong,
+.dt-model-status strong {
+  color: #edf4fc;
+  font-size: 10px;
+}
+
+.dt-map-attribution {
+  position: absolute;
+  bottom: 5px;
+  right: 355px;
+  z-index: 10;
+  color: rgba(255,255,255,.65);
+  font-size: 9px;
+  pointer-events: none;
+}
+
+.dt-error {
+  position: absolute;
+  z-index: 50;
+  top: 170px;
+  left: 85px;
+  max-width: 350px;
+  padding: 13px;
+  border: 1px solid rgba(255,100,100,.4);
+  border-radius: 8px;
+  background: rgba(65,20,25,.95);
+  color: white;
+  font-size: 11px;
+}
+
+.dt-error strong,
+.dt-error span {
+  display: block;
+}
+
+.dt-error span {
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 768px) {
+  .digital-twin-workspace {
+    height: calc(100dvh - 70px);
+    min-height: 500px;
+  }
+
+  .dt-topbar {
+    left: 10px;
+    right: 10px;
+    top: 10px;
+    min-height: 54px;
+    padding: 8px 11px;
+  }
+
+  .dt-project-title {
+    font-size: 9px;
+  }
+
+  .dt-project-subtitle {
+    font-size: 9px;
+  }
+
+  .dt-status {
+    font-size: 9px;
+  }
+
+  .dt-toolbar {
+    top: 78px;
+    left: 10px;
+  }
+
+  .dt-right-panel {
+    top: 78px;
+    right: 10px;
+    bottom: 12px;
+    width: min(290px, calc(100vw - 85px));
+  }
+
+  .dt-left-bottom {
+    bottom: 10px;
+    left: 10px;
+  }
+
+  .dt-coordinate,
+  .dt-model-status {
+    padding: 7px 9px;
+  }
+
+  .dt-map-attribution {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .dt-project-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .dt-status {
+    max-width: 95px;
+  }
+
+  .dt-left-bottom {
+    display: none;
+  }
+}

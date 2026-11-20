@@ -1,0 +1,235 @@
+
+.lintas-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  width: 100%;
+  height: 70px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 51, 102, 0.10);
+  box-shadow: 0 2px 12px rgba(0, 30, 65, 0.07);
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.lintas-header-container {
+  width: 100%;
+  max-width: 1440px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 35px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lintas-brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-decoration: none;
+  min-width: 0;
+}
+
+.lintas-brand-logos {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.lintas-logo {
+  width: auto;
+  height: 55px;
+  object-fit: contain;
+}
+
+.lintas-brand-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.15;
+}
+
+.lintas-brand-title {
+  color: #003366;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+}
+
+.lintas-brand-subtitle {
+  color: #263b50;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.25px;
+}
+
+.lintas-brand-agency {
+  color: #667789;
+  font-size: 9px;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.lintas-navigation {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.lintas-navigation a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  color: #003366;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.lintas-navigation a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 15px;
+  width: 0;
+  height: 3px;
+  border-radius: 5px;
+  background: #ffc20e;
+  transition: width 0.25s ease;
+}
+
+.lintas-navigation a:hover {
+  color: #b88600;
+}
+
+.lintas-navigation a:hover::after {
+  width: 100%;
+}
+
+.lintas-menu-toggle {
+  display: none;
+  width: 42px;
+  height: 40px;
+  padding: 9px;
+  border: 1px solid #dce5ee;
+  border-radius: 7px;
+  background: white;
+  cursor: pointer;
+}
+
+.lintas-menu-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  margin: 4px 0;
+  background: #003366;
+  border-radius: 3px;
+  transition: 0.2s ease;
+}
+
+
+@media (max-width: 992px) {
+  .lintas-header {
+    height: 70px;
+    min-height: 70px;
+  }
+
+  .lintas-header-container {
+    height: 70px;
+    min-height: 70px;
+    padding: 0 20px;
+    flex-wrap: nowrap;
+    position: relative;
+  }
+
+  .lintas-brand {
+    gap: 9px;
+  }
+
+  .lintas-logo {
+    height: 47px;
+  }
+
+  .lintas-brand-title {
+    font-size: 18px;
+  }
+
+  .lintas-menu-toggle {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .lintas-navigation {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    right: 0;
+    z-index: 10001;
+
+    display: none;
+    width: 100%;
+    height: auto;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+
+    padding: 8px 15px 12px;
+    margin: 0;
+
+    border-top: 1px solid #edf1f5;
+    border-bottom: 1px solid #dce5ee;
+    background: rgba(255, 255, 255, .98);
+    box-shadow: 0 8px 18px rgba(0, 30, 65, .12);
+  }
+
+  .lintas-navigation.open {
+    display: flex;
+  }
+
+  .lintas-navigation a {
+    height: auto;
+    padding: 13px 8px;
+  }
+
+  .lintas-navigation a::after {
+    display: none;
+  }
+
+  .lintas-navigation a:hover {
+    background: #f4f7fa;
+  }
+}
+
+@media (max-width: 480px) {
+  .lintas-header-container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .lintas-logo {
+    height: 40px;
+  }
+
+  .lintas-brand-logos {
+    gap: 5px;
+  }
+
+  .lintas-brand-title {
+    font-size: 16px;
+  }
+
+  .lintas-brand-subtitle {
+    font-size: 9px;
+  }
+
+  .lintas-brand-agency {
+    font-size: 8px;
+  }
+}
