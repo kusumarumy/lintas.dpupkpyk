@@ -13,7 +13,7 @@ import {
   useState,
 } from "react";
 import { useParams, useRouter } from "next/navigation";
-import * as Cesium from "cesium";
+import type * as Cesium from "cesium";
 
 import "cesium/Build/Cesium/Widgets/widgets.css";
 
@@ -30,6 +30,82 @@ const CONDITION_COLORS: Record<number, string> = {
   4: "#a83232",
   5: "#541d35",
 };
+
+declare global {
+  interface Window {
+    CESIUM_BASE_URL: string;
+    Cesium?: typeof import("cesium");
+  }
+}
+
+// Menjaga satu proses pemuatan Cesium untuk seluruh halaman.
+let cesiumLoadPromise: Promise<typeof import("cesium")> | null = null;
+
+function loadCesiumRuntime(): Promise<typeof import("cesium")> {
+  if (typeof window === "undefined") {
+    return Promise.reject(
+      new Error("Cesium hanya dapat dimuat di browser.")
+    );
+  }
+
+  // Lokasi seluruh aset runtime Cesium.
+  window.CESIUM_BASE_URL = "/cesium/";
+
+  // Jika Cesium sudah tersedia, gunakan kembali.
+  if (window.Cesium) {
+    return Promise.resolve(window.Cesium);
+  }
+
+  // Hindari memuat script berulang kali.
+  if (cesiumLoadPromise) {
+    return cesiumLoadPromise;
+  }
+
+  cesiumLoadPromise = new Promise((resolve, reject) => {
+    let script = document.querySelector<HTMLScriptElement>(
+      'script[data-cesium-runtime="true"]'
+    );
+
+    const handleLoad = () => {
+      if (window.Cesium) {
+        resolve(window.Cesium);
+      } else {
+        reject(
+          new Error(
+            "Cesium.js dimuat, tetapi objek window.Cesium tidak tersedia."
+          )
+        );
+      }
+    };
+
+    const handleError = () => {
+      reject(
+        new Error(
+          "Gagal memuat runtime Cesium dari /cesium/Cesium.js."
+        )
+      );
+    };
+
+    if (!script) {
+      script = document.createElement("script");
+      script.src = "/cesium/Cesium.js";
+      script.async = true;
+      script.dataset.cesiumRuntime = "true";
+    }
+
+    script.addEventListener("load", handleLoad, { once: true });
+    script.addEventListener("error", handleError, { once: true });
+
+    if (!script.isConnected) {
+      document.head.appendChild(script);
+    }
+  });
+
+  return cesiumLoadPromise.catch((error) => {
+    cesiumLoadPromise = null;
+    throw error;
+  });
+}
 
 function getConditionColor(value: number | null) {
   if (value === null) return "#8993a4";
@@ -60,19 +136,27 @@ function getConditionDescription(value: number | null) {
   return descriptions[value] ?? "Status kondisi belum diketahui.";
 }
 
+
 function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+
   const viewerRef = useRef<Cesium.Viewer | null>(null);
+
+  const cesiumModuleRef = useRef<typeof import("cesium") | null>(null);
+
   const tilesetsRef = useRef<{
     area?: Cesium.Cesium3DTileset;
     river?: Cesium.Cesium3DTileset;
   }>({});
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
   const [layers, setLayers] = useState<CesiumLayerState>({
     area: true,
     river: true,
   });
+
   const [fullscreen, setFullscreen] = useState(false);
 
   useEffect(() => {
@@ -81,36 +165,39 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
     async function initializeCesium() {
       if (!containerRef.current) return;
 
+      let viewer: Cesium.Viewer | null = null;
+
       try {
         setLoading(true);
         setError("");
 
-// Arahkan seluruh aset runtime Cesium ke folder public Next.js.
-(
-  window as Window & {
-    CESIUM_BASE_URL?: string;
-  }
-).CESIUM_BASE_URL = "/cesium/";
-
-const token = getCesiumToken("accountA");
-
-if (!token) {
-  throw new Error(
-    "Token Cesium Account A belum tersedia. Periksa konfigurasi environment."
-  );
-}
-
-Cesium.Ion.defaultAccessToken = token;
-
-        const terrainProvider = bridge.model.terrainAssetId
-          ? await Cesium.CesiumTerrainProvider.fromIonAssetId(
-              bridge.model.terrainAssetId
-            )
-          : await Cesium.CesiumTerrainProvider.fromIonAssetId(1);
+        const CesiumRuntime = await loadCesiumRuntime();
 
         if (cancelled || !containerRef.current) return;
 
-        const viewer = new Cesium.Viewer(containerRef.current, {
+        cesiumModuleRef.current = CesiumRuntime;
+
+        const token = getCesiumToken("accountA");
+
+        if (!token) {
+          throw new Error(
+            "Token Cesium Account A belum tersedia. Periksa konfigurasi environment."
+          );
+        }
+
+        CesiumRuntime.Ion.defaultAccessToken = token;
+
+        // Terrain.
+        const terrainProvider = bridge.model.terrainAssetId
+          ? await CesiumRuntime.CesiumTerrainProvider.fromIonAssetId(
+              bridge.model.terrainAssetId
+            )
+          : await CesiumRuntime.CesiumTerrainProvider.fromIonAssetId(1);
+
+        if (cancelled || !containerRef.current) return;
+
+        // Inisialisasi Viewer.
+        viewer = new CesiumRuntime.Viewer(containerRef.current, {
           animation: false,
           timeline: false,
           geocoder: false,
@@ -130,64 +217,70 @@ Cesium.Ion.defaultAccessToken = token;
 
         viewer.scene.globe.enableLighting = true;
         viewer.scene.globe.depthTestAgainstTerrain = false;
+
         if (viewer.scene.skyAtmosphere) {
-  viewer.scene.skyAtmosphere.show = true;
-}
+          viewer.scene.skyAtmosphere.show = true;
+        }
+
         viewer.scene.fog.enabled = true;
+
         viewer.scene.screenSpaceCameraController.enableCollisionDetection =
           true;
 
-        viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString(
-          "#dce5e8"
-        );
+        viewer.scene.globe.baseColor =
+          CesiumRuntime.Color.fromCssColorString("#dce5e8");
 
+        // Imagery.
         if (bridge.model.imageryAssetId) {
           try {
-            const imagery = await Cesium.IonImageryProvider.fromAssetId(
-              bridge.model.imageryAssetId
-            );
+            const imagery =
+              await CesiumRuntime.IonImageryProvider.fromAssetId(
+                bridge.model.imageryAssetId
+              );
 
             if (cancelled) {
-              viewer.destroy();
+              if (!viewer.isDestroyed()) viewer.destroy();
               return;
             }
 
             viewer.imageryLayers.removeAll();
             viewer.imageryLayers.addImageryProvider(imagery);
           } catch (imageryError) {
-            console.warn("Imagery tidak berhasil dimuat:", imageryError);
+            console.warn(
+              "Imagery tidak berhasil dimuat:",
+              imageryError
+            );
           }
         }
 
+        // Model utama jembatan.
         if (bridge.model.mainAssetId) {
-          const mainTileset = await Cesium.Cesium3DTileset.fromIonAssetId(
-            bridge.model.mainAssetId
-          );
+          const mainTileset =
+            await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
+              bridge.model.mainAssetId
+            );
 
           if (cancelled) {
-            viewer.destroy();
+            if (!viewer.isDestroyed()) viewer.destroy();
             return;
           }
 
           viewer.scene.primitives.add(mainTileset);
 
-
-          if (cancelled) {
-            viewer.destroy();
-            return;
-          }
-
           await viewer.flyTo(mainTileset, {
             duration: 2,
-            offset: new Cesium.HeadingPitchRange(
-              Cesium.Math.toRadians(0),
-              Cesium.Math.toRadians(-25),
-              Math.max(mainTileset.boundingSphere.radius * 2.8, 100)
+            offset: new CesiumRuntime.HeadingPitchRange(
+              CesiumRuntime.Math.toRadians(0),
+              CesiumRuntime.Math.toRadians(-25),
+              Math.max(
+                mainTileset.boundingSphere.radius * 2.8,
+                100
+              )
             ),
           });
         } else {
           await viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(
+            destination: CesiumRuntime.Cartesian3.fromDegrees(
               bridge.identity.longitude,
               bridge.identity.latitude,
               800
@@ -195,54 +288,81 @@ Cesium.Ion.defaultAccessToken = token;
           });
         }
 
+        if (cancelled) {
+          if (!viewer.isDestroyed()) viewer.destroy();
+          return;
+        }
+
+        // Model area sekitar.
         if (bridge.model.areaAssetId) {
           try {
-            const area = await Cesium.Cesium3DTileset.fromIonAssetId(
-              bridge.model.areaAssetId
-            );
+            const area =
+              await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
+                bridge.model.areaAssetId
+              );
 
             if (cancelled) {
-              viewer.destroy();
+              if (!viewer.isDestroyed()) viewer.destroy();
               return;
             }
 
             viewer.scene.primitives.add(area);
             area.show = layers.area;
+
             tilesetsRef.current.area = area;
           } catch (areaError) {
-            console.warn("Model area tidak berhasil dimuat:", areaError);
+            console.warn(
+              "Model area tidak berhasil dimuat:",
+              areaError
+            );
           }
         }
 
+        // Model sungai.
         if (bridge.model.riverAssetId) {
           try {
-            const river = await Cesium.Cesium3DTileset.fromIonAssetId(
-              bridge.model.riverAssetId
-            );
+            const river =
+              await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
+                bridge.model.riverAssetId
+              );
 
             if (cancelled) {
-              viewer.destroy();
+              if (!viewer.isDestroyed()) viewer.destroy();
               return;
             }
 
             viewer.scene.primitives.add(river);
             river.show = layers.river;
+
             tilesetsRef.current.river = river;
           } catch (riverError) {
-            console.warn("Model sungai tidak berhasil dimuat:", riverError);
+            console.warn(
+              "Model sungai tidak berhasil dimuat:",
+              riverError
+            );
           }
         }
 
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       } catch (err) {
         console.error("Cesium initialization error:", err);
 
+        if (viewer && !viewer.isDestroyed()) {
+          viewer.destroy();
+        }
+
         if (!cancelled) {
+          viewerRef.current = null;
+          tilesetsRef.current = {};
+
           setError(
             err instanceof Error
               ? err.message
               : "Terjadi kesalahan saat memuat model 3D."
           );
+
           setLoading(false);
         }
       }
@@ -258,10 +378,12 @@ Cesium.Ion.defaultAccessToken = token;
       }
 
       viewerRef.current = null;
+      cesiumModuleRef.current = null;
       tilesetsRef.current = {};
     };
   }, [bridge]);
 
+  // Kontrol layer.
   useEffect(() => {
     if (tilesetsRef.current.area) {
       tilesetsRef.current.area.show = layers.area;
@@ -272,32 +394,41 @@ Cesium.Ion.defaultAccessToken = token;
     }
   }, [layers]);
 
+  // Reset kamera.
   const resetCamera = useCallback(() => {
     const viewer = viewerRef.current;
-    if (!viewer || viewer.isDestroyed()) return;
+    const CesiumRuntime = cesiumModuleRef.current;
 
-    const main = bridge.model.mainAssetId;
+    if (
+      !viewer ||
+      viewer.isDestroyed() ||
+      !CesiumRuntime
+    ) {
+      return;
+    }
 
-    if (main) {
-      const tileset = viewer.scene.primitives.get(
-        0
-      ) as Cesium.Cesium3DTileset;
+    const mainTileset = bridge.model.mainAssetId
+      ? (viewer.scene.primitives.get(0) as Cesium.Cesium3DTileset)
+      : undefined;
 
-      if (tileset && tileset.boundingSphere) {
-        viewer.flyTo(tileset, {
-          duration: 1.5,
-          offset: new Cesium.HeadingPitchRange(
-            Cesium.Math.toRadians(0),
-            Cesium.Math.toRadians(-25),
-            Math.max(tileset.boundingSphere.radius * 2.8, 100)
-          ),
-        });
-        return;
-      }
+    if (mainTileset?.boundingSphere) {
+      viewer.flyTo(mainTileset, {
+        duration: 1.5,
+        offset: new CesiumRuntime.HeadingPitchRange(
+          CesiumRuntime.Math.toRadians(0),
+          CesiumRuntime.Math.toRadians(-25),
+          Math.max(
+            mainTileset.boundingSphere.radius * 2.8,
+            100
+          )
+        ),
+      });
+
+      return;
     }
 
     viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(
+      destination: CesiumRuntime.Cartesian3.fromDegrees(
         bridge.identity.longitude,
         bridge.identity.latitude,
         800
@@ -305,8 +436,10 @@ Cesium.Ion.defaultAccessToken = token;
     });
   }, [bridge]);
 
+  // Fullscreen.
   const toggleFullscreen = useCallback(async () => {
     const element = containerRef.current?.parentElement;
+
     if (!element) return;
 
     try {
@@ -327,10 +460,16 @@ Cesium.Ion.defaultAccessToken = token;
       setFullscreen(Boolean(document.fullscreenElement));
     };
 
-    document.addEventListener("fullscreenchange", handleFullscreen);
+    document.addEventListener(
+      "fullscreenchange",
+      handleFullscreen
+    );
 
     return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreen);
+      document.removeEventListener(
+        "fullscreenchange",
+        handleFullscreen
+      );
     };
   }, []);
 
@@ -399,7 +538,9 @@ Cesium.Ion.defaultAccessToken = token;
         <div className="viewer-loading">
           <div className="loading-spinner" />
           <strong>Memuat Digital Twin</strong>
-          <span>Menyiapkan terrain dan model 3D jembatan...</span>
+          <span>
+            Menyiapkan terrain dan model 3D jembatan...
+          </span>
         </div>
       )}
 
@@ -407,7 +548,11 @@ Cesium.Ion.defaultAccessToken = token;
         <div className="viewer-error">
           <strong>Model 3D belum dapat ditampilkan</strong>
           <span>{error}</span>
-          <button type="button" onClick={() => window.location.reload()}>
+
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+          >
             Muat ulang halaman
           </button>
         </div>
@@ -420,6 +565,7 @@ Cesium.Ion.defaultAccessToken = token;
     </div>
   );
 }
+
 
 function ConditionHistory({ bridge }: { bridge: BridgeData }) {
   const history = useMemo(

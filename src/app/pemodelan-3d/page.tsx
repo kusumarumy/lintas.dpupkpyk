@@ -9,7 +9,7 @@ import {
 import type { BridgeData } from "@/data/bridges/types";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-
+import type * as Cesium from "cesium";
 type ConditionFilter = "all" | "good" | "damaged" | "critical";
 
 function getLatestCondition(bridge: BridgeData) {
