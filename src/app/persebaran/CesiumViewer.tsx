@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -8,6 +9,8 @@ type BasemapType = "esri" | "osm";
 
 type Props = {
   bridges: BridgeMapItem[];
+  selectedKelurahan: string | null;
+  onSelectKelurahan: (nama: string, kemantren: string) => void;
   selectedBridge: BridgeMapItem | null;
   flyToSignal: number;
   modelSignal: number;
@@ -30,6 +33,7 @@ type MeasurementResult = {
   pointCount: number;
 };
 const DATA_URL = "/api/geojson/jembatan";
+const KELURAHAN_DATA_URL = "/api/geojson/kelurahan";
 const DTM_ASSET_ID = 4185927;
 
 function createBasemapProvider(
@@ -54,6 +58,8 @@ function createBasemapProvider(
 
 export default function CesiumViewer({
   bridges,
+  selectedKelurahan,
+  onSelectKelurahan,
   selectedBridge,
   flyToSignal,
   modelSignal,
@@ -69,6 +75,7 @@ export default function CesiumViewer({
 const viewerRef = useRef<any>(null);
 const cesiumRef = useRef<any>(null);
 const dataSourceRef = useRef<any>(null);
+const kelurahanDataSourceRef = useRef<any>(null);
 const loadedTilesetsRef = useRef<any[]>([]);
 const terrainLoadedRef = useRef(false);
 const imageryLayerRef = useRef<any>(null);
@@ -87,10 +94,14 @@ measurementCallbackRef.current = onMeasurementUpdate;
 basemapRef.current = basemap;
   const bridgesRef = useRef(bridges);
   const selectedBridgeRef = useRef(selectedBridge);
+  const selectedKelurahanRef = useRef(selectedKelurahan);
+  const onSelectKelurahanRef = useRef(onSelectKelurahan);
   const onSelectRef = useRef(onSelect);
 
   bridgesRef.current = bridges;
   selectedBridgeRef.current = selectedBridge;
+  selectedKelurahanRef.current = selectedKelurahan;
+  onSelectKelurahanRef.current = onSelectKelurahan;
   onSelectRef.current = onSelect;
 
   // =========================================================
@@ -438,6 +449,44 @@ function ensureTerrainLoaded(
       }
     }
   }
+function getPropertyValue(entity: any, key: string, Cesium: any) {
+  const property = entity.properties?.[key];
+  if (property && typeof property.getValue === "function") {
+    return property.getValue(Cesium.JulianDate.now());
+  }
+  return property ?? "";
+}
+
+function normalizeAreaName(value: unknown) {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function styleKelurahanEntities(dataSource: any, Cesium: any, selectedName: string | null) {
+  if (!dataSource) return;
+  const selectedKey = normalizeAreaName(selectedName);
+
+  for (const entity of dataSource.entities.values) {
+    if (!entity.polygon) continue;
+    const name = getPropertyValue(entity, "NAME_4", Cesium);
+    const isSelected = selectedKey !== "" && normalizeAreaName(name) === selectedKey;
+
+    entity.polygon.material = Cesium.Color.fromCssColorString(
+      isSelected ? "#39D98A" : "#8BC9A6"
+    ).withAlpha(isSelected ? 0.42 : 0.045);
+    entity.polygon.outline = true;
+    entity.polygon.outlineColor = isSelected
+      ? Cesium.Color.fromCssColorString("#073B70")
+      : Cesium.Color.fromCssColorString("#FFFFFF").withAlpha(0.72);
+    entity.polygon.outlineWidth = isSelected ? 3 : 1;
+    entity.polygon.height = 0;
+    entity.polygon.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
+  }
+}
+
 // HAPUS MODEL LAMA KETIKA PENGGUNA BERPINDAH JEMBATAN
 useEffect(() => {
   const viewer = viewerRef.current;
@@ -583,6 +632,31 @@ const dataSource =
 
         styleGeoJsonEntities(dataSource, Cesium);
 
+        // Muat batas administrasi kelurahan dari Cloudflare R2.
+        try {
+          const kelurahanSource = await Cesium.GeoJsonDataSource.load(
+            KELURAHAN_DATA_URL,
+            { clampToGround: true, stroke: Cesium.Color.WHITE, strokeWidth: 1, fill: Cesium.Color.TRANSPARENT }
+          );
+
+          if (!cancelled && !localViewer.isDestroyed()) {
+            await localViewer.dataSources.add(kelurahanSource);
+            kelurahanDataSourceRef.current = kelurahanSource;
+            styleKelurahanEntities(
+              kelurahanSource,
+              Cesium,
+              selectedKelurahanRef.current
+            );
+            console.log(
+              "GeoJSON kelurahan berhasil dimuat:",
+              kelurahanSource.entities.values.length,
+              "kelurahan"
+            );
+          }
+        } catch (kelurahanError) {
+          console.error("GeoJSON kelurahan gagal dimuat:", kelurahanError);
+        }
+
         console.log(
           "GeoJSON berhasil dimuat ke Cesium:",
           dataSource.entities.values.length,
@@ -718,6 +792,17 @@ localViewer.screenSpaceEventHandler.setInputAction(
 
     if (bridge) {
       onSelectRef.current(bridge);
+      return;
+    }
+
+    // Klik polygon batas kelurahan untuk membuka ringkasan statistik.
+    const kelurahanName = getPropertyValue(entity, "NAME_4", Cesium);
+    const kemantrenName = getPropertyValue(entity, "NAME_3", Cesium);
+    if (entity.polygon && String(kelurahanName ?? "").trim()) {
+      onSelectKelurahanRef.current(
+        String(kelurahanName).trim(),
+        String(kemantrenName ?? "").trim()
+      );
     }
   },
   Cesium.ScreenSpaceEventType.LEFT_CLICK
@@ -746,6 +831,7 @@ localViewer.screenSpaceEventHandler.setInputAction(
   viewerRef.current = null;
   imageryLayerRef.current = null;
   dataSourceRef.current = null;
+  kelurahanDataSourceRef.current = null;
   cesiumRef.current = null;
   loadedTilesetsRef.current = [];
   terrainLoadedRef.current = false;
@@ -806,6 +892,14 @@ useEffect(() => {
 
   imageryLayerRef.current = newLayer;
 }, [basemap]);
+useEffect(() => {
+  const viewer = viewerRef.current;
+  const Cesium = cesiumRef.current;
+  const source = kelurahanDataSourceRef.current;
+  if (!viewer || viewer.isDestroyed() || !Cesium || !source) return;
+  styleKelurahanEntities(source, Cesium, selectedKelurahan);
+}, [selectedKelurahan]);
+
 // RESET KOMPAS: arah utara berada di atas
 useEffect(() => {
   const viewer = viewerRef.current;
