@@ -128,45 +128,59 @@ const homeContent = `
     </div>
   </section>
 
-  <!-- FITUR -->
+ 
+  <!-- FITUR UTAMA WEBGIS -->
   <section id="fitur" class="features-section">
     <div class="features-container">
 
       <div class="features-heading">
         <span>LAYANAN DIGITAL</span>
         <h2>Fitur Utama <strong>WEBGIS LINTAS</strong></h2>
-        <p>Akses informasi dan visualisasi infrastruktur jembatan Kota Yogyakarta.</p>
+        <p>
+          Akses informasi statistik, persebaran, dan pemodelan
+          infrastruktur jembatan Kota Yogyakarta.
+        </p>
       </div>
 
       <div class="features-grid">
 
-        <a href="#organisasi" class="feature-card">
-          <div class="feature-icon"><i class="bi bi-building"></i></div>
-          <h3>Profil DPUPKP</h3>
-          <p>Profil DPUPKP, bidang, dan UPT terkait.</p>
+        <a href="/statistika" class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-bar-chart-line-fill"></i>
+          </div>
+          <h3>Statistika Jembatan</h3>
+          <p>
+            Informasi statistik jumlah, kondisi, dan klasifikasi
+            jembatan di Kota Yogyakarta.
+          </p>
         </a>
 
-        <a href="/statistika" class="feature-card">
-          <div class="feature-icon"><i class="bi bi-bar-chart-line-fill"></i></div>
-          <h3>Statistika Jembatan</h3>
-          <p>Statistik jumlah, kondisi, dan klasifikasi jembatan.</p>
+        <a href="/persebaran" class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-geo-alt-fill"></i>
+          </div>
+          <h3>Persebaran Jembatan</h3>
+          <p>
+            Visualisasi lokasi dan persebaran geografis
+            infrastruktur jembatan melalui WebGIS.
+          </p>
         </a>
 
         <a href="/pemodelan-3d" class="feature-card">
-          <div class="feature-icon"><i class="bi bi-box"></i></div>
-          <h3>Pemodelan 3D</h3>
-          <p>Visualisasi tiga dimensi infrastruktur jembatan.</p>
-        </a>
-
-        <a href="/jembatan" class="feature-card">
-          <div class="feature-icon"><i class="bi bi-geo-alt-fill"></i></div>
-          <h3>Daftar Jembatan</h3>
-          <p>Informasi enam jembatan di Kota Yogyakarta.</p>
+          <div class="feature-icon">
+            <i class="bi bi-box"></i>
+          </div>
+          <h3>Pemodelan Jembatan 3D</h3>
+          <p>
+            Visualisasi model tiga dimensi dan informasi
+            infrastruktur jembatan.
+          </p>
         </a>
 
       </div>
     </div>
   </section>
+
 
   <!-- FOOTER -->
   <footer class="footer-custom">
