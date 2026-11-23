@@ -9,35 +9,6 @@ const homeContent = `
       alt="Tampilan udara kawasan jembatan Kota Yogyakarta"
     >
     <div class="hero-overlay"></div>
-<div class="hero-grid-pattern"></div>
-
-<!-- ANIMASI GEOSPASIAL -->
-<div class="hero-visual-effects">
-
-  <div class="geo-marker marker-one">
-    <i class="bi bi-geo-alt-fill"></i>
-    <span></span>
-  </div>
-
-  <div class="geo-marker marker-two">
-    <i class="bi bi-geo-alt-fill"></i>
-    <span></span>
-  </div>
-
-  <div class="geo-marker marker-three">
-    <i class="bi bi-building"></i>
-    <span></span>
-  </div>
-
-  <div class="geo-marker marker-four">
-    <i class="bi bi-geo-alt-fill"></i>
-    <span></span>
-  </div>
-
-  <div class="hero-light-beam"></div>
-
-</div>
-
 <div class="hero-inner">
       <div class="hero-copy">
         <div class="hero-eyebrow">
