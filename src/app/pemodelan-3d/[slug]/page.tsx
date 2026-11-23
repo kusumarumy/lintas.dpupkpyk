@@ -539,6 +539,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
     }
   }, [transparency, loading]);
 
+  
   // =====================================================
   // CLIPPING
   // =====================================================
@@ -549,8 +550,11 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
 
     if (!main || !CesiumRuntime || main.isDestroyed()) return;
 
+    // Matikan clipping tanpa mengisi undefined.
     if (!clipping) {
-      main.clippingPlanes = undefined;
+      if (main.clippingPlanes) {
+        main.clippingPlanes.enabled = false;
+      }
       return;
     }
 
@@ -559,6 +563,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
         ? new CesiumRuntime.Cartesian3(1, 0, 0)
         : new CesiumRuntime.Cartesian3(0, 1, 0);
 
+    // Buat collection baru jika belum tersedia.
     main.clippingPlanes = new CesiumRuntime.ClippingPlaneCollection({
       planes: [
         new CesiumRuntime.ClippingPlane(
@@ -570,7 +575,13 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
       edgeColor: CesiumRuntime.Color.CYAN,
       enabled: true,
     });
+
+    return () => {
+      // Tidak perlu menghapus collection saat efek berjalan ulang.
+      // Collection akan diperbarui oleh efek berikutnya.
+    };
   }, [clipping, clipAxis, clipPosition, loading]);
+
 
   // =====================================================
   // BLOOM
