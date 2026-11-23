@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -495,23 +494,23 @@ function styleKelurahanEntities(
     "#E5D7B8", // sand
   ];
 
-  // OSM memakai warna yang lebih dalam agar polygon tidak tenggelam
-  // di antara label, jalan, dan detail peta dasar.
+  // OSM memakai warna pastel yang lebih vivid dan jenuh,
+  // mendekati tampilan tematik yang cerah tanpa kehilangan karakter lembut.
   const osmPalette = [
-    "#86A995", // sage green
-    "#8299B8", // muted blue
-    "#B7839B", // dusty pink
-    "#B99D70", // warm beige
-    "#9C8AB8", // lavender
-    "#7EAAB2", // soft teal
-    "#A5A477", // muted olive
-    "#B98570", // soft terracotta
-    "#8FA477", // pale moss
-    "#A59687", // stone
-    "#8792B9", // periwinkle
-    "#AE879F", // mauve
-    "#83A598", // eucalyptus
-    "#B29A6E", // sand
+    "#83D18C", // fresh green
+    "#8DB8F0", // clear blue
+    "#E6A0D2", // vivid dusty pink
+    "#E9C978", // warm golden yellow
+    "#B8A0E8", // lavender
+    "#72D1D0", // turquoise
+    "#C6D985", // fresh olive
+    "#EBA184", // coral
+    "#9BD59B", // mint green
+    "#D8B99A", // sand
+    "#9BADEB", // periwinkle
+    "#E5A4B8", // rose
+    "#83CDB5", // eucalyptus
+    "#E5CF8D", // soft amber
   ];
 
   const entities = dataSource.entities.values;
@@ -552,25 +551,26 @@ function styleKelurahanEntities(
     const fillColor =
       kemantrenColorByKey.get(kemantrenKey) ?? "#D4DCE5";
 
-    // OSM menggunakan palet lebih gelap dan outline abu-abu gelap.
-    // Satellite tetap memakai palet pastel dan outline putih seperti sebelumnya.
+    // OSM memakai warna lebih vivid dan outline putih agar batas
+    // kelurahan terbaca jelas di atas detail jalan dan label.
+    // Satellite tetap memakai palet pastel awal tanpa perubahan.
     const fillAlpha = isSelected
-      ? isOsm ? 0.84 : 0.60
-      : isOsm ? 0.75 : 0.35;
+      ? isOsm ? 0.86 : 0.60
+      : isOsm ? 0.76 : 0.35;
 
     entity.polygon.material = Cesium.Color.fromCssColorString(
-      isSelected ? (isOsm ? "#718F82" : "#8FBFA8") : fillColor
+      fillColor
     ).withAlpha(fillAlpha);
 
     entity.polygon.outline = true;
     entity.polygon.outlineColor = isSelected
       ? Cesium.Color.fromCssColorString(
-          isOsm ? "#34434D" : "#174A70"
+          isOsm ? "#294B63" : "#174A70"
         ).withAlpha(0.98)
-      : Cesium.Color.fromCssColorString(
-          isOsm ? "#59636B" : "#FFFFFF"
-        ).withAlpha(isOsm ? 0.88 : 0.82);
-    entity.polygon.outlineWidth = isSelected ? 2.5 : isOsm ? 1.35 : 1;
+      : Cesium.Color.fromCssColorString("#FFFFFF").withAlpha(
+          isOsm ? 0.94 : 0.82
+        );
+    entity.polygon.outlineWidth = isSelected ? 2.5 : isOsm ? 1.5 : 1;
 
     entity.polygon.height = 0;
     entity.polygon.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
