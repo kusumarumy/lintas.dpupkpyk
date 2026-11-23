@@ -159,7 +159,7 @@ documents: [
   {
     title: "Dokumen Teknis Jembatan Tamansari Baru",
     type: "pdf",
-    url: r2Asset("Jembatan Taman Sari Baru.pdf.pdf", "data"),
+    url: r2Asset("Jembatan Taman Sari Baru.pdf", "data"),
   },
   {
     title: "Data DWG Jembatan Tamansari Baru",
