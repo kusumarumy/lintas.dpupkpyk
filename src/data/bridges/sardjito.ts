@@ -7,10 +7,10 @@ export const sardjito: BridgeData = {
   name: "Jembatan Sardjito",
 
   identity: {
-    roadNumber: "",
+    roadNumber: "N_1138",
     roadName: "Jembatan Sardjito",
-    village: "Belum diisi",
-    district: "Belum diisi",
+    village: "Cokrodiningratan ",
+    district: "Jetis",
     city: "Kota Yogyakarta",
 
     // Titik tengah bounding envelope CityGML
@@ -21,24 +21,24 @@ export const sardjito: BridgeData = {
     longitudeText: `110°22'13.91" BT`,
 
     yearBuilt: null,
-    operationalStatus: "",
-    riverValue: null,
-    riverCondition: "",
+    operationalStatus: "Beroperasi",
+    riverValue: 3,
+    riverCondition: "Rusak Berat",
   },
 
   dimensions: {
-    length: null,
-    width: null,
-    spans: null,
+    length: 62,
+    width: 8.9,
+    spans: 1,
   },
 
   history: [],
 
   currentCondition: {
-    score: null,
-    condition: "",
+    score: 3,
+    condition: "Rusak Berat",
     stability: "",
-    handlingPlan: "",
+    handlingPlan: "Memerlukan Perbaikan Secepatnya Dalam 1 tahun",
     construction: "",
     damage: [],
     recommendations: [],
@@ -48,36 +48,36 @@ export const sardjito: BridgeData = {
     superstructure: [
       {
         name: "Struktur Atas",
-        type: "",
-        value: null,
+        type: "Rangka Baja",
+        value: 3,
       },
       {
         name: "Sistem Lantai",
-        type: "",
-        value: null,
+        type: "Aspal",
+        value: 2,
       },
       {
         name: "Perlengkapan (Sandaran, Railing, Pipa Cucuran)",
-        type: "",
-        value: null,
+        type: "Beton dan Pas. Bata",
+        value: 1,
       },
     ],
 
     substructure: [
       {
         name: "Abutmen/Pilar",
-        type: "",
-        value: null,
+        type: "Beton Bertulang",
+        value: 0,
       },
       {
         name: "Pondasi",
-        type: "",
-        value: null,
+        type: "Beton Bertulang",
+        value: 0,
       },
       {
         name: "Dinding Penahan",
-        type: "",
-        value: null,
+        type: "Pasangan Batu",
+        value: 0,
       },
     ],
   },
@@ -94,6 +94,15 @@ export const sardjito: BridgeData = {
   ],
 
   documents: [
-    // Tambahkan dokumen teknis Sardjito dari Cloudflare R2 di sini
+    {
+      title: "Dokumen Teknis Jembatan Sardjito",
+      type: "pdf",
+      url: r2Asset("Jembatan Sardjito.pdf", "data"),
+    },
+    {
+      title: "Data DWG Jembatan Sardjito",
+      type: "zip",
+      url: r2Asset("jembatan_sardjito.zip", "data"),
+    },
   ],
 };
