@@ -465,23 +465,80 @@ function normalizeAreaName(value: unknown) {
     .replace(/[^a-z0-9]/g, "");
 }
 
-function styleKelurahanEntities(dataSource: any, Cesium: any, selectedName: string | null) {
+function styleKelurahanEntities(
+  dataSource: any,
+  Cesium: any,
+  selectedName: string | null
+) {
   if (!dataSource) return;
+
   const selectedKey = normalizeAreaName(selectedName);
 
-  for (const entity of dataSource.entities.values) {
+  // Satu warna untuk seluruh kelurahan dalam kemantren yang sama.
+  // Palet pastel dibuat berbeda agar batas kelompok wilayah mudah dikenali,
+  // tetapi tetap lembut di atas basemap satelit maupun OSM.
+  const kemantrenPalette = [
+    "#B8D8C7", // sage green
+    "#B9CBE8", // soft blue
+    "#E9C5D7", // dusty pink
+    "#E9D5AE", // warm beige
+    "#C9BCE3", // lavender
+    "#B8D9DF", // soft teal
+    "#D8D6B5", // muted olive
+    "#E8C4B2", // soft terracotta
+    "#C4D5B5", // pale moss
+    "#D3C6B8", // stone
+    "#C3C8E3", // periwinkle
+    "#E4D0DF", // mauve
+    "#C6D8D0", // eucalyptus
+    "#E5D7B8", // sand
+  ];
+
+  const entities = dataSource.entities.values;
+  const kemantrenKeys = Array.from(
+    new Set(
+      entities
+        .filter((entity: any) => entity.polygon)
+        .map((entity: any) =>
+          normalizeAreaName(getPropertyValue(entity, "NAME_3", Cesium))
+        )
+        .filter((name: string) => name !== "")
+    )
+  ).sort();
+
+  // Urutan warna ditentukan dari daftar kemantren yang ditemukan,
+  // sehingga warna setiap kemantren konsisten pada seluruh polygon.
+  const kemantrenColorByKey = new Map<string, string>();
+  kemantrenKeys.forEach((key, index) => {
+    kemantrenColorByKey.set(
+      key,
+      kemantrenPalette[index % kemantrenPalette.length]
+    );
+  });
+
+  for (const entity of entities) {
     if (!entity.polygon) continue;
-    const name = getPropertyValue(entity, "NAME_4", Cesium);
-    const isSelected = selectedKey !== "" && normalizeAreaName(name) === selectedKey;
+
+    const kelurahanName = getPropertyValue(entity, "NAME_4", Cesium);
+    const kemantrenName = getPropertyValue(entity, "NAME_3", Cesium);
+    const kemantrenKey = normalizeAreaName(kemantrenName);
+    const isSelected =
+      selectedKey !== "" &&
+      normalizeAreaName(kelurahanName) === selectedKey;
+
+    const fillColor =
+      kemantrenColorByKey.get(kemantrenKey) ?? "#D4DCE5";
 
     entity.polygon.material = Cesium.Color.fromCssColorString(
-      isSelected ? "#39D98A" : "#8BC9A6"
-    ).withAlpha(isSelected ? 0.42 : 0.045);
+      isSelected ? "#8FBFA8" : fillColor
+    ).withAlpha(isSelected ? 0.52 : 0.30);
+
     entity.polygon.outline = true;
     entity.polygon.outlineColor = isSelected
-      ? Cesium.Color.fromCssColorString("#073B70")
-      : Cesium.Color.fromCssColorString("#FFFFFF").withAlpha(0.72);
-    entity.polygon.outlineWidth = isSelected ? 3 : 1;
+      ? Cesium.Color.fromCssColorString("#174A70").withAlpha(0.95)
+      : Cesium.Color.fromCssColorString("#FFFFFF").withAlpha(0.82);
+    entity.polygon.outlineWidth = isSelected ? 2.5 : 1;
+
     entity.polygon.height = 0;
     entity.polygon.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
   }
