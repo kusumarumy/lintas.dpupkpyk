@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -542,6 +543,16 @@ function styleKelurahanEntities(
     );
   });
 
+  // Hapus garis highlight sebelumnya agar hanya satu kelurahan yang
+  // memiliki outline merah tebal pada satu waktu.
+  const previousHighlight = (dataSource as any).__kelurahanHighlightEntities as any[] | undefined;
+  if (previousHighlight) {
+    previousHighlight.forEach((highlight) => dataSource.entities.remove(highlight));
+  }
+  (dataSource as any).__kelurahanHighlightEntities = [];
+
+  let selectedEntity: any = null;
+
   for (const entity of entities) {
     if (!entity.polygon) continue;
 
@@ -555,30 +566,59 @@ function styleKelurahanEntities(
     const fillColor =
       kemantrenColorByKey.get(kemantrenKey) ?? "#D4DCE5";
 
-    // OSM memakai warna lebih vivid dan outline putih agar batas
-    // kelurahan terbaca jelas di atas detail jalan dan label.
-    // Satellite tetap memakai palet pastel awal tanpa perubahan.
     const fillAlpha = isSelected
       ? isOsm ? 0.78 : 0.68
       : isOsm ? 0.76 : 0.35;
 
-    // Warna isi polygon tetap mengikuti kemantren. Highlight pilihan
-    // hanya mengubah outline menjadi merah; hover memakai outline emas.
+    // Isi polygon tidak berubah menjadi merah; warna tetap mengikuti kemantren.
     entity.polygon.material = Cesium.Color.fromCssColorString(fillColor)
       .withAlpha(fillAlpha);
 
     entity.polygon.outline = true;
-    entity.polygon.outlineColor = isSelected
-      ? Cesium.Color.fromCssColorString("#EF4444").withAlpha(1)
-      : isHovered
-        ? Cesium.Color.fromCssColorString("#FFD166").withAlpha(1)
-        : Cesium.Color.fromCssColorString("#FFFFFF").withAlpha(
-            isOsm ? 0.94 : 0.82
-          );
-    entity.polygon.outlineWidth = isSelected ? 3 : isHovered ? 2.5 : isOsm ? 1.5 : 1;
-
+    entity.polygon.outlineColor = isHovered
+      ? Cesium.Color.fromCssColorString("#FFD166").withAlpha(1)
+      : Cesium.Color.fromCssColorString("#FFFFFF").withAlpha(
+          isOsm ? 0.94 : 0.82
+        );
+    entity.polygon.outlineWidth = isHovered ? 2.5 : isOsm ? 1.5 : 1;
     entity.polygon.height = 0;
     entity.polygon.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
+
+    if (isSelected) selectedEntity = entity;
+  }
+
+  // Garis highlight dibuat sebagai polyline terpisah karena ketebalan
+  // outline polygon Cesium dibatasi oleh renderer WebGL.
+  if (selectedEntity?.polygon?.hierarchy) {
+    const hierarchyProperty = selectedEntity.polygon.hierarchy;
+    const hierarchy = typeof hierarchyProperty.getValue === "function"
+      ? hierarchyProperty.getValue(Cesium.JulianDate.now())
+      : hierarchyProperty;
+    const positions = hierarchy?.positions;
+
+    if (positions && positions.length >= 2) {
+      const halo = dataSource.entities.add({
+        id: `kelurahan-highlight-halo-${selectedKey}`,
+        polyline: {
+          positions: [...positions, positions[0]],
+          width: 9,
+          material: Cesium.Color.WHITE.withAlpha(0.98),
+          clampToGround: true,
+          arcType: Cesium.ArcType.GEODESIC,
+        },
+      });
+      const redLine = dataSource.entities.add({
+        id: `kelurahan-highlight-red-${selectedKey}`,
+        polyline: {
+          positions: [...positions, positions[0]],
+          width: 5,
+          material: Cesium.Color.fromCssColorString("#FF1744").withAlpha(1),
+          clampToGround: true,
+          arcType: Cesium.ArcType.GEODESIC,
+        },
+      });
+      (dataSource as any).__kelurahanHighlightEntities = [halo, redLine];
+    }
   }
 }
 
