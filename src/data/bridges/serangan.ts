@@ -20,7 +20,7 @@ export const sardjito: BridgeData = {
     latitudeText: `-7°48'3.87" LS`,
     longitudeText: `110°21'17.27" BT`,
 
-    yearBuilt: "-",
+    yearBuilt: 0,
     operationalStatus: "Beroperasi",
     riverValue: 2,
     riverCondition: "Rusak Sedang",
