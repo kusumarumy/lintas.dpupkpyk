@@ -17,6 +17,7 @@ export default function Header() {
     pathname === path ? "active" : "";
 
   
+
 const isHome = pathname === "/";
 
 return (
@@ -89,5 +90,6 @@ return (
     </div>
   </header>
 );
+
 
 }
