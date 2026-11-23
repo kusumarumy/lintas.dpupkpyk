@@ -228,5 +228,4 @@ const homeContent = `
 
 </div>
 `;
-
 export default homeContent;
