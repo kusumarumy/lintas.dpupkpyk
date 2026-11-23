@@ -176,32 +176,44 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const cesiumModuleRef = useRef<typeof import("cesium") | null>(null);
 
+  const mainTilesetRef = useRef<Cesium.Cesium3DTileset | null>(null);
   const tilesetsRef = useRef<{
-    main?: Cesium.Cesium3DTileset;
     area?: Cesium.Cesium3DTileset;
     river?: Cesium.Cesium3DTileset;
   }>({});
+  const measurementHandlerRef =
+    useRef<Cesium.ScreenSpaceEventHandler | null>(null);
+  const measurementEntitiesRef = useRef<Cesium.Entity[]>([]);
+  const measurementPointsRef = useRef<Cesium.Cartesian3[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [fullscreen, setFullscreen] = useState(false);
 
-  const [layers, setLayers] = useState({
+  const [layers, setLayers] = useState<CesiumLayerState>({
     area: true,
     river: true,
   });
 
-  const [timeMinutes, setTimeMinutes] = useState(
-    getCurrentWibMinutes,
-  );
+  const [lighting, setLighting] = useState("day");
+  const [transparency, setTransparency] = useState(100);
+  const [clipping, setClipping] = useState(false);
+  const [clipAxis, setClipAxis] = useState<"x" | "y">("x");
+  const [clipPosition, setClipPosition] = useState(0);
 
-  const [liveTime, setLiveTime] = useState(true);
-  const [lighting, setLighting] = useState(true);
-  const [shadows, setShadows] = useState(true);
-  const [atmosphere, setAtmosphere] = useState(true);
-  const [panelOpen, setPanelOpen] = useState(true);
+  const [bloom, setBloom] = useState(false);
+  const [streetViewOpen, setStreetViewOpen] = useState(false);
 
-  // Inisialisasi Cesium.
+  const [measurementMode, setMeasurementMode] = useState<
+    "none" | "distance" | "area" | "height"
+  >("none");
+
+  const [measurementResult, setMeasurementResult] = useState("");
+
+  // =====================================================
+  // INITIALIZE CESIUM
+  // =====================================================
+
   useEffect(() => {
     let cancelled = false;
     let localViewer: Cesium.Viewer | null = null;
@@ -223,13 +235,12 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
 
         if (!token) {
           throw new Error(
-            "Token Cesium Account A belum tersedia.",
+            "Token Cesium Account A belum tersedia. Periksa environment.",
           );
         }
 
         CesiumRuntime.Ion.defaultAccessToken = token;
 
-        // Terrain tetap menggunakan asset Kewek.
         const terrainProvider = bridge.model.terrainAssetId
           ? await CesiumRuntime.CesiumTerrainProvider.fromIonAssetId(
               bridge.model.terrainAssetId,
@@ -238,63 +249,38 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
 
         if (cancelled || !containerRef.current) return;
 
-        const viewer = new CesiumRuntime.Viewer(
-          containerRef.current,
-          {
-            animation: false,
-            timeline: false,
-            geocoder: false,
-            homeButton: false,
-            sceneModePicker: false,
-            navigationHelpButton: false,
-            baseLayerPicker: false,
-            fullscreenButton: false,
-            infoBox: false,
-            selectionIndicator: false,
-            scene3DOnly: true,
-            shouldAnimate: false,
+        localViewer = new CesiumRuntime.Viewer(containerRef.current, {
+          animation: false,
+          timeline: false,
+          geocoder: false,
+          homeButton: false,
+          sceneModePicker: false,
+          navigationHelpButton: false,
+          baseLayerPicker: false,
+          fullscreenButton: false,
+          infoBox: false,
+          selectionIndicator: false,
+          scene3DOnly: true,
+          shouldAnimate: true,
+          terrainProvider,
+        });
 
-            terrainProvider,
+        viewerRef.current = localViewer;
 
-            // Mengaktifkan bayangan matahari.
-            shadows: true,
-
-            // Terrain menerima bayangan.
-            terrainShadows:
-              CesiumRuntime.ShadowMode.RECEIVE_ONLY,
-          },
-        );
-
-        localViewer = viewer;
-        viewerRef.current = viewer;
-
-        // Pencahayaan permukaan bumi.
-        viewer.scene.globe.enableLighting = true;
-
-        viewer.scene.globe.depthTestAgainstTerrain = false;
-
-        viewer.scene.globe.baseColor =
+        localViewer.scene.globe.enableLighting = true;
+        localViewer.scene.globe.depthTestAgainstTerrain = false;
+        localViewer.scene.globe.baseColor =
           CesiumRuntime.Color.fromCssColorString("#dce5e8");
 
-        // Atmosfer.
-        if (viewer.scene.skyAtmosphere) {
-          viewer.scene.skyAtmosphere.show = true;
+        if (localViewer.scene.skyAtmosphere) {
+          localViewer.scene.skyAtmosphere.show = true;
         }
 
-        viewer.scene.fog.enabled = true;
+        localViewer.scene.fog.enabled = true;
+        localViewer.scene.screenSpaceCameraController.enableCollisionDetection =
+          true;
 
-        viewer.scene.screenSpaceCameraController
-          .enableCollisionDetection = true;
-
-        // Atur waktu awal berdasarkan WIB.
-        viewer.clock.currentTime = getWibJulianDate(
-          CesiumRuntime,
-          timeMinutes,
-        );
-
-        viewer.clock.shouldAnimate = false;
-
-        // Imagery.
+        // IMAGERY
         if (bridge.model.imageryAssetId) {
           try {
             const imagery =
@@ -304,14 +290,14 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
 
             if (cancelled) return;
 
-            viewer.imageryLayers.removeAll();
-            viewer.imageryLayers.addImageryProvider(imagery);
+            localViewer.imageryLayers.removeAll();
+            localViewer.imageryLayers.addImageryProvider(imagery);
           } catch (err) {
-            console.warn("Imagery gagal dimuat:", err);
+            console.warn("Imagery tidak berhasil dimuat:", err);
           }
         }
 
-        // Model utama.
+        // MAIN BRIDGE MODEL
         if (bridge.model.mainAssetId) {
           const mainTileset =
             await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
@@ -320,26 +306,19 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
 
           if (cancelled) return;
 
-          mainTileset.shadows =
-            CesiumRuntime.ShadowMode.ENABLED;
+          localViewer.scene.primitives.add(mainTileset);
+          mainTilesetRef.current = mainTileset;
 
-          viewer.scene.primitives.add(mainTileset);
-
-          tilesetsRef.current.main = mainTileset;
-
-          await viewer.flyTo(mainTileset, {
+          await localViewer.flyTo(mainTileset, {
             duration: 2,
             offset: new CesiumRuntime.HeadingPitchRange(
-              CesiumRuntime.Math.toRadians(0),
+              0,
               CesiumRuntime.Math.toRadians(-25),
-              Math.max(
-                mainTileset.boundingSphere.radius * 2.8,
-                100,
-              ),
+              Math.max(mainTileset.boundingSphere.radius * 2.8, 100),
             ),
           });
         } else {
-          await viewer.camera.flyTo({
+          await localViewer.camera.flyTo({
             destination: CesiumRuntime.Cartesian3.fromDegrees(
               bridge.identity.longitude,
               bridge.identity.latitude,
@@ -350,47 +329,39 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
 
         if (cancelled) return;
 
-        // Model area sekitar.
+        // AREA MODEL
         if (bridge.model.areaAssetId) {
           try {
-            const area =
-              await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
-                bridge.model.areaAssetId,
-              );
+            const area = await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
+              bridge.model.areaAssetId,
+            );
 
             if (cancelled) return;
 
+            localViewer.scene.primitives.add(area);
             area.show = layers.area;
-            area.shadows = CesiumRuntime.ShadowMode.ENABLED;
-
-            viewer.scene.primitives.add(area);
             tilesetsRef.current.area = area;
           } catch (err) {
-            console.warn("Model area gagal dimuat:", err);
+            console.warn("Model area tidak berhasil dimuat:", err);
           }
         }
 
-        // Model sungai.
+        // RIVER MODEL
         if (bridge.model.riverAssetId) {
           try {
-            const river =
-              await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
-                bridge.model.riverAssetId,
-              );
+            const river = await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
+              bridge.model.riverAssetId,
+            );
 
             if (cancelled) return;
 
+            localViewer.scene.primitives.add(river);
             river.show = layers.river;
-            river.shadows = CesiumRuntime.ShadowMode.ENABLED;
-
-            viewer.scene.primitives.add(river);
             tilesetsRef.current.river = river;
           } catch (err) {
-            console.warn("Model sungai gagal dimuat:", err);
+            console.warn("Model sungai tidak berhasil dimuat:", err);
           }
         }
-
-        viewer.scene.requestRender();
 
         if (!cancelled) {
           setLoading(false);
@@ -404,6 +375,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
 
         if (!cancelled) {
           viewerRef.current = null;
+          mainTilesetRef.current = null;
           tilesetsRef.current = {};
 
           setError(
@@ -422,85 +394,32 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
     return () => {
       cancelled = true;
 
+      if (
+        measurementHandlerRef.current &&
+        !measurementHandlerRef.current.isDestroyed()
+      ) {
+        measurementHandlerRef.current.destroy();
+      }
+
+      measurementHandlerRef.current = null;
+
       if (localViewer && !localViewer.isDestroyed()) {
         localViewer.destroy();
       }
 
-      if (viewerRef.current === localViewer) {
-        viewerRef.current = null;
-      }
-
+      viewerRef.current = null;
+      mainTilesetRef.current = null;
       cesiumModuleRef.current = null;
       tilesetsRef.current = {};
+      measurementEntitiesRef.current = [];
+      measurementPointsRef.current = [];
     };
   }, [bridge]);
 
-  // Mengikuti waktu WIB saat mode Live aktif.
-  useEffect(() => {
-    if (!liveTime) return;
+  // =====================================================
+  // LAYER CONTROL
+  // =====================================================
 
-    const updateTime = () => {
-      setTimeMinutes(getCurrentWibMinutes());
-    };
-
-    updateTime();
-
-    const interval = window.setInterval(updateTime, 30000);
-
-    return () => window.clearInterval(interval);
-  }, [liveTime]);
-
-  // Menerapkan posisi matahari sesuai waktu.
-  useEffect(() => {
-    const viewer = viewerRef.current;
-    const CesiumRuntime = cesiumModuleRef.current;
-
-    if (!viewer || viewer.isDestroyed() || !CesiumRuntime) {
-      return;
-    }
-
-    viewer.clock.currentTime = getWibJulianDate(
-      CesiumRuntime,
-      timeMinutes,
-    );
-
-    viewer.clock.shouldAnimate = false;
-    viewer.scene.requestRender();
-  }, [timeMinutes, loading]);
-
-  // Kontrol pencahayaan dan bayangan.
-  useEffect(() => {
-    const viewer = viewerRef.current;
-    const CesiumRuntime = cesiumModuleRef.current;
-
-    if (!viewer || viewer.isDestroyed() || !CesiumRuntime) {
-      return;
-    }
-
-    viewer.scene.globe.enableLighting = lighting;
-
-    viewer.shadows = shadows;
-
-    viewer.terrainShadows = shadows
-      ? CesiumRuntime.ShadowMode.RECEIVE_ONLY
-      : CesiumRuntime.ShadowMode.DISABLED;
-
-    const shadowMode = shadows
-      ? CesiumRuntime.ShadowMode.ENABLED
-      : CesiumRuntime.ShadowMode.DISABLED;
-
-    Object.values(tilesetsRef.current).forEach((tileset) => {
-      if (tileset) tileset.shadows = shadowMode;
-    });
-
-    if (viewer.scene.skyAtmosphere) {
-      viewer.scene.skyAtmosphere.show = atmosphere;
-    }
-
-    viewer.scene.requestRender();
-  }, [lighting, shadows, atmosphere, loading]);
-
-  // Kontrol layer.
   useEffect(() => {
     if (tilesetsRef.current.area) {
       tilesetsRef.current.area.show = layers.area;
@@ -509,58 +428,475 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
     if (tilesetsRef.current.river) {
       tilesetsRef.current.river.show = layers.river;
     }
+  }, [layers, loading]);
 
-    viewerRef.current?.scene.requestRender();
-  }, [layers]);
+  // =====================================================
+  // LIGHTING CONTROL
+  // =====================================================
 
-  // Preset waktu.
-  const selectTime = useCallback((hour: number) => {
-    setLiveTime(false);
-    setTimeMinutes(hour * 60);
-  }, []);
+  const applyLighting = useCallback(
+    (mode: string) => {
+      const viewer = viewerRef.current;
+      const CesiumRuntime = cesiumModuleRef.current;
 
-  const resetLiveTime = useCallback(() => {
-    setLiveTime(true);
-    setTimeMinutes(getCurrentWibMinutes());
-  }, []);
+      if (!viewer || viewer.isDestroyed() || !CesiumRuntime) return;
 
-  // Reset kamera.
+      const scene = viewer.scene;
+      const atmosphere = scene.skyAtmosphere;
+
+      scene.globe.enableLighting = true;
+      scene.sun.show = true;
+      scene.moon.show = true;
+
+      if (atmosphere) {
+        atmosphere.show = true;
+        atmosphere.hueShift = 0;
+        atmosphere.saturationShift = 0;
+        atmosphere.brightnessShift = 0;
+      }
+
+      switch (mode) {
+        case "day":
+          scene.backgroundColor = CesiumRuntime.Color.BLACK;
+          if (atmosphere) atmosphere.brightnessShift = 0.1;
+          break;
+
+        case "night":
+          scene.backgroundColor =
+            CesiumRuntime.Color.fromCssColorString("#071426");
+          if (atmosphere) {
+            atmosphere.brightnessShift = -0.5;
+            atmosphere.saturationShift = -0.2;
+          }
+          break;
+
+        case "sunrise":
+          if (atmosphere) {
+            atmosphere.hueShift = 0.05;
+            atmosphere.saturationShift = 0.3;
+            atmosphere.brightnessShift = 0.15;
+          }
+          break;
+
+        case "sunset":
+          if (atmosphere) {
+            atmosphere.hueShift = -0.08;
+            atmosphere.saturationShift = 0.5;
+            atmosphere.brightnessShift = -0.05;
+          }
+          break;
+
+        case "atmosphere":
+          if (atmosphere) {
+            atmosphere.show = true;
+            atmosphere.saturationShift = 0.4;
+            atmosphere.brightnessShift = 0.2;
+          }
+          break;
+
+        case "sun":
+          scene.sun.show = true;
+          scene.moon.show = false;
+          scene.globe.enableLighting = true;
+          break;
+      }
+
+      setLighting(mode);
+    },
+    [],
+  );
+
+  // =====================================================
+  // TRANSPARENCY
+  // =====================================================
+
+  useEffect(() => {
+    const main = mainTilesetRef.current;
+    const CesiumRuntime = cesiumModuleRef.current;
+
+    if (!main || !CesiumRuntime || main.isDestroyed()) return;
+
+    if (transparency >= 100) {
+      main.style = undefined;
+    } else {
+      const alpha = Math.max(0.05, transparency / 100);
+
+      main.style = new CesiumRuntime.Cesium3DTileStyle({
+        color: `color('white', ${alpha})`,
+      });
+    }
+  }, [transparency, loading]);
+
+  // =====================================================
+  // CLIPPING
+  // =====================================================
+
+  useEffect(() => {
+    const main = mainTilesetRef.current;
+    const CesiumRuntime = cesiumModuleRef.current;
+
+    if (!main || !CesiumRuntime || main.isDestroyed()) return;
+
+    if (!clipping) {
+      main.clippingPlanes = undefined;
+      return;
+    }
+
+    const normal =
+      clipAxis === "x"
+        ? new CesiumRuntime.Cartesian3(1, 0, 0)
+        : new CesiumRuntime.Cartesian3(0, 1, 0);
+
+    main.clippingPlanes = new CesiumRuntime.ClippingPlaneCollection({
+      planes: [
+        new CesiumRuntime.ClippingPlane(
+          normal,
+          clipPosition,
+        ),
+      ],
+      edgeWidth: 1.5,
+      edgeColor: CesiumRuntime.Color.CYAN,
+      enabled: true,
+    });
+  }, [clipping, clipAxis, clipPosition, loading]);
+
+  // =====================================================
+  // BLOOM
+  // =====================================================
+
+  useEffect(() => {
+    const viewer = viewerRef.current;
+
+    if (!viewer || viewer.isDestroyed()) return;
+
+    const bloomStage = viewer.scene.postProcessStages.bloom;
+
+    if (bloomStage) {
+      bloomStage.enabled = bloom;
+    }
+  }, [bloom, loading]);
+
+  // =====================================================
+  // NAVIGATION
+  // =====================================================
+
   const resetCamera = useCallback(() => {
+    const viewer = viewerRef.current;
+    const main = mainTilesetRef.current;
+    const CesiumRuntime = cesiumModuleRef.current;
+
+    if (!viewer || viewer.isDestroyed() || !CesiumRuntime) return;
+
+    if (main && !main.isDestroyed()) {
+      viewer.flyTo(main, {
+        duration: 1.5,
+        offset: new CesiumRuntime.HeadingPitchRange(
+          0,
+          CesiumRuntime.Math.toRadians(-25),
+          Math.max(main.boundingSphere.radius * 2.8, 100),
+        ),
+      });
+    } else {
+      viewer.camera.flyTo({
+        destination: CesiumRuntime.Cartesian3.fromDegrees(
+          bridge.identity.longitude,
+          bridge.identity.latitude,
+          800,
+        ),
+      });
+    }
+  }, [bridge]);
+
+ 
+const setCameraView = useCallback(
+  (view: "top" | "north") => {
     const viewer = viewerRef.current;
     const CesiumRuntime = cesiumModuleRef.current;
 
-    if (!viewer || viewer.isDestroyed() || !CesiumRuntime) {
-      return;
-    }
+    if (!viewer || viewer.isDestroyed() || !CesiumRuntime) return;
 
-    const mainTileset = tilesetsRef.current.main;
+    const main = mainTilesetRef.current;
 
-    if (mainTileset) {
-      viewer.flyTo(mainTileset, {
-        duration: 1.5,
+    if (main && !main.isDestroyed()) {
+      const pitch =
+        view === "top"
+          ? -CesiumRuntime.Math.PI_OVER_TWO
+          : CesiumRuntime.Math.toRadians(-35);
+
+      viewer.flyToBoundingSphere(main.boundingSphere, {
+        duration: 1.3,
         offset: new CesiumRuntime.HeadingPitchRange(
-          CesiumRuntime.Math.toRadians(0),
-          CesiumRuntime.Math.toRadians(-25),
-          Math.max(
-            mainTileset.boundingSphere.radius * 2.8,
-            100,
-          ),
+          0,
+          pitch,
+          Math.max(main.boundingSphere.radius * 2.8, 100),
         ),
       });
+    } else {
+      viewer.camera.flyTo({
+        destination: CesiumRuntime.Cartesian3.fromDegrees(
+          bridge.identity.longitude,
+          bridge.identity.latitude,
+          800,
+        ),
+        orientation: {
+          heading: 0,
+          pitch: CesiumRuntime.Math.toRadians(-45),
+          roll: 0,
+        },
+        duration: 1.3,
+      });
+    }
+  },
+  [bridge],
+);
 
+  // =====================================================
+  // MEASUREMENT
+  // =====================================================
+
+  const clearMeasurements = useCallback(() => {
+    const viewer = viewerRef.current;
+
+    if (!viewer || viewer.isDestroyed()) return;
+
+    measurementEntitiesRef.current.forEach((entity) => {
+      viewer.entities.remove(entity);
+    });
+
+    measurementEntitiesRef.current = [];
+    measurementPointsRef.current = [];
+    setMeasurementResult("");
+  }, []);
+
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    const CesiumRuntime = cesiumModuleRef.current;
+
+    if (
+      !viewer ||
+      viewer.isDestroyed() ||
+      !CesiumRuntime ||
+      measurementMode === "none"
+    ) {
       return;
     }
 
-    viewer.camera.flyTo({
-      destination: CesiumRuntime.Cartesian3.fromDegrees(
-        bridge.identity.longitude,
-        bridge.identity.latitude,
-        800,
-      ),
-    });
-  }, [bridge]);
+    if (
+      measurementHandlerRef.current &&
+      !measurementHandlerRef.current.isDestroyed()
+    ) {
+      measurementHandlerRef.current.destroy();
+    }
 
-  // Fullscreen.
+    measurementPointsRef.current = [];
+
+    const handler = new CesiumRuntime.ScreenSpaceEventHandler(
+      viewer.scene.canvas,
+    );
+
+    measurementHandlerRef.current = handler;
+
+    const addPoint = (position: Cesium.Cartesian3) => {
+      measurementPointsRef.current.push(position);
+
+      const entity = viewer.entities.add({
+        position,
+        point: {
+          pixelSize: 9,
+          color: CesiumRuntime.Color.YELLOW,
+          outlineColor: CesiumRuntime.Color.WHITE,
+          outlineWidth: 2,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        },
+      });
+
+      measurementEntitiesRef.current.push(entity);
+    };
+
+    const getPosition = (movement: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+      const picked = viewer.scene.pickPosition(movement.position);
+
+      if (CesiumRuntime.defined(picked)) return picked;
+
+      const ray = viewer.camera.getPickRay(movement.position);
+
+      return ray ? viewer.scene.globe.pick(ray, viewer.scene) : undefined;
+    };
+
+    const addResultLabel = (
+      position: Cesium.Cartesian3,
+      text: string,
+    ) => {
+      const entity = viewer.entities.add({
+        position,
+        label: {
+          text,
+          font: "14px sans-serif",
+          fillColor: CesiumRuntime.Color.WHITE,
+          outlineColor: CesiumRuntime.Color.BLACK,
+          outlineWidth: 3,
+          style: CesiumRuntime.LabelStyle.FILL_AND_OUTLINE,
+          showBackground: true,
+          backgroundColor: CesiumRuntime.Color.fromCssColorString(
+            "#142638",
+          ).withAlpha(0.9),
+          pixelOffset: new CesiumRuntime.Cartesian2(0, -20),
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        },
+      });
+
+      measurementEntitiesRef.current.push(entity);
+    };
+
+    const finishMeasurement = () => {
+      const points = measurementPointsRef.current;
+
+      if (measurementMode === "distance" && points.length >= 2) {
+        const distance = CesiumRuntime.Cartesian3.distance(
+          points[0],
+          points[1],
+        );
+
+        viewer.entities.add({
+          polyline: {
+            positions: points.slice(0, 2),
+            width: 4,
+            material: CesiumRuntime.Color.YELLOW,
+            clampToGround: false,
+          },
+        });
+
+        const midpoint = CesiumRuntime.Cartesian3.midpoint(
+          points[0],
+          points[1],
+          new CesiumRuntime.Cartesian3(),
+        );
+
+        addResultLabel(midpoint, `${distance.toFixed(2)} meter`);
+        setMeasurementResult(`Jarak: ${distance.toFixed(2)} meter`);
+        setMeasurementMode("none");
+      }
+
+      if (measurementMode === "height" && points.length >= 2) {
+        const first = CesiumRuntime.Cartographic.fromCartesian(points[0]);
+        const second = CesiumRuntime.Cartographic.fromCartesian(points[1]);
+
+        const height = Math.abs(second.height - first.height);
+
+        viewer.entities.add({
+          polyline: {
+            positions: points.slice(0, 2),
+            width: 4,
+            material: CesiumRuntime.Color.CYAN,
+          },
+        });
+
+        const midpoint = CesiumRuntime.Cartesian3.midpoint(
+          points[0],
+          points[1],
+          new CesiumRuntime.Cartesian3(),
+        );
+
+        addResultLabel(midpoint, `${height.toFixed(2)} meter`);
+        setMeasurementResult(`Tinggi: ${height.toFixed(2)} meter`);
+        setMeasurementMode("none");
+      }
+
+      if (measurementMode === "area" && points.length >= 3) {
+        const origin = points[0];
+
+        const enu = CesiumRuntime.Transforms.eastNorthUpToFixedFrame(
+          origin,
+        );
+
+        const inverse = CesiumRuntime.Matrix4.inverseTransformation(
+          enu,
+          new CesiumRuntime.Matrix4(),
+        );
+
+        const localPoints = points.map((point) =>
+          CesiumRuntime.Matrix4.multiplyByPoint(
+            inverse,
+            point,
+            new CesiumRuntime.Cartesian3(),
+          ),
+        );
+
+        let area = 0;
+
+        for (let i = 0; i < localPoints.length; i++) {
+          const current = localPoints[i];
+          const next = localPoints[(i + 1) % localPoints.length];
+
+          area += current.x * next.y - next.x * current.y;
+        }
+
+        area = Math.abs(area) / 2;
+const line = viewer.entities.add({
+  polyline: {
+    positions: points.slice(0, 2),
+    width: 4,
+    material: CesiumRuntime.Color.YELLOW,
+    clampToGround: false,
+  },
+});
+
+measurementEntitiesRef.current.push(line);
+        const polygon = viewer.entities.add({
+          polygon: {
+            hierarchy: new CesiumRuntime.PolygonHierarchy(points),
+            material: CesiumRuntime.Color.CYAN.withAlpha(0.3),
+            outline: true,
+            outlineColor: CesiumRuntime.Color.CYAN,
+          },
+        });
+
+        measurementEntitiesRef.current.push(polygon);
+
+        addResultLabel(origin, `${area.toFixed(2)} m²`);
+        setMeasurementResult(`Luas: ${area.toFixed(2)} m²`);
+        setMeasurementMode("none");
+      }
+    };
+
+    handler.setInputAction(
+      (movement: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+        const position = getPosition(movement);
+
+        if (!position) return;
+
+        addPoint(position);
+
+        if (
+          (measurementMode === "distance" ||
+            measurementMode === "height") &&
+          measurementPointsRef.current.length === 2
+        ) {
+          finishMeasurement();
+        }
+      },
+      CesiumRuntime.ScreenSpaceEventType.LEFT_CLICK,
+    );
+
+    if (measurementMode === "area") {
+      handler.setInputAction(() => {
+        finishMeasurement();
+      }, CesiumRuntime.ScreenSpaceEventType.RIGHT_CLICK);
+    }
+
+    return () => {
+      if (!handler.isDestroyed()) handler.destroy();
+
+      if (measurementHandlerRef.current === handler) {
+        measurementHandlerRef.current = null;
+      }
+    };
+  }, [measurementMode, loading]);
+
+  // =====================================================
+  // FULLSCREEN
+  // =====================================================
+
   const toggleFullscreen = useCallback(async () => {
     const element = containerRef.current?.parentElement;
 
@@ -585,202 +921,315 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
     document.addEventListener("fullscreenchange", handleFullscreen);
 
     return () => {
-      document.removeEventListener(
-        "fullscreenchange",
-        handleFullscreen,
-      );
+      document.removeEventListener("fullscreenchange", handleFullscreen);
     };
   }, []);
 
-  const toggleLayer = (key: "area" | "river") => {
-    setLayers((previous) => ({
-      ...previous,
-      [key]: !previous[key],
-    }));
-  };
+  // =====================================================
+  // USER INTERFACE
+  // =====================================================
 
   return (
     <div className="viewer-shell">
-      <div className="viewer-topbar">
-        <div className="viewer-label">
-          <span className="live-dot" />
-          <span>3D VISUALIZATION</span>
-        </div>
-
-        <div className="viewer-actions">
-          <button type="button" onClick={resetCamera}>
-            ⌖ Reset View
-          </button>
-
-          <button type="button" onClick={toggleFullscreen}>
-            {fullscreen ? "Exit Fullscreen" : "Fullscreen"}
-          </button>
-        </div>
-      </div>
 
       <div className="cesium-map" ref={containerRef} />
 
-      {/* Panel Environment */}
-      <aside className={`viewer-control-panel ${panelOpen ? "" : "collapsed"}`}>
-        <div className="control-panel-header">
-          <div>
-            <span className="control-eyebrow">LINTAS ENVIRONMENT</span>
-            <strong>3D Environment</strong>
-          </div>
+      {/* RIGHT CONTROL PANEL */}
+      <aside className="cesium-control-panel">
 
-          <button
-            type="button"
-            onClick={() => setPanelOpen(!panelOpen)}
-            title="Tampilkan/sembunyikan panel"
-          >
-            {panelOpen ? "×" : "‹"}
-          </button>
+        <div className="cesium-panel-header">
+          <strong>⚙ Kontrol Visualisasi</strong>
+          <span>LINTAS 3D WEBGIS</span>
         </div>
 
-        {panelOpen && (
-          <>
-            {/* Sunlight */}
-            <section className="control-section">
-              <div className="control-section-title">
-                <span>☀</span>
-                <strong>Sunlight & Shadows</strong>
-              </div>
+        {/* LIGHTING */}
+        <div className="cesium-control-group">
+          <h4>💡 Efek Pencahayaan</h4>
 
-              <div className="control-time">
-                <strong>{formatWibTime(timeMinutes)}</strong>
-                <span>WIB · Yogyakarta</span>
-              </div>
-
-              <div className="time-slider">
-                <input
-                  type="range"
-                  min={0}
-                  max={1439}
-                  step={5}
-                  value={timeMinutes}
-                  onChange={(event) => {
-                    setLiveTime(false);
-                    setTimeMinutes(Number(event.target.value));
-                  }}
-                />
-
-                <div className="time-scale">
-                  <span>00</span>
-                  <span>06</span>
-                  <span>12</span>
-                  <span>18</span>
-                  <span>24</span>
-                </div>
-              </div>
-
-              <div className="time-presets">
-                {[
-                  { label: "Dawn", hour: 6 },
-                  { label: "Noon", hour: 12 },
-                  { label: "Golden", hour: 17 },
-                  { label: "Night", hour: 20 },
-                ].map((preset) => (
-                  <button
-                    type="button"
-                    key={preset.label}
-                    className={
-                      timeMinutes === preset.hour * 60
-                        ? "active"
-                        : ""
-                    }
-                    onClick={() => selectTime(preset.hour)}
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-
+          <div className="cesium-button-grid">
+            {[
+              ["day", "☀ Day"],
+              ["night", "🌙 Night"],
+              ["sunrise", "🌅 Sunrise"],
+              ["sunset", "🌇 Sunset"],
+              ["atmosphere", "🌤 Atmosfer"],
+              ["sun", "🌞 Sun"],
+            ].map(([value, label]) => (
               <button
+                key={value}
+                className={lighting === value ? "active" : ""}
+                onClick={() => applyLighting(value)}
                 type="button"
-                className={`live-time-button ${liveTime ? "active" : ""}`}
-                onClick={resetLiveTime}
               >
-                ● {liveTime ? "Live WIB" : "Kembali ke waktu sekarang"}
+                {label}
               </button>
-            </section>
+            ))}
+          </div>
+        </div>
 
-            {/* Lighting */}
-            <section className="control-section">
-              <div className="control-section-title">
-                <span>◐</span>
-                <strong>Lighting Settings</strong>
-              </div>
+        {/* CLIPPING */}
+        <div className="cesium-control-group">
+          <div className="cesium-control-title">
+            <h4>✂ Pemotongan Model</h4>
+            <label className="cesium-switch">
+              <input
+                type="checkbox"
+                checked={clipping}
+                onChange={(e) => setClipping(e.target.checked)}
+              />
+              <span />
+            </label>
+          </div>
 
-              <label className="environment-toggle">
-                <span>
-                  <strong>Terrain Lighting</strong>
-                  <small>Pencahayaan permukaan bumi</small>
-                </span>
-                <input
-                  type="checkbox"
-                  checked={lighting}
-                  onChange={(e) => setLighting(e.target.checked)}
-                />
-              </label>
+          <div className="cesium-inline-options">
+            <label>
+              <input
+                type="radio"
+                checked={clipAxis === "x"}
+                onChange={() => setClipAxis("x")}
+              />
+              Vertikal X
+            </label>
 
-              <label className="environment-toggle">
-                <span>
-                  <strong>3D Shadows</strong>
-                  <small>Bayangan model dan terrain</small>
-                </span>
-                <input
-                  type="checkbox"
-                  checked={shadows}
-                  onChange={(e) => setShadows(e.target.checked)}
-                />
-              </label>
+            <label>
+              <input
+                type="radio"
+                checked={clipAxis === "y"}
+                onChange={() => setClipAxis("y")}
+              />
+              Vertikal Y
+            </label>
+          </div>
 
-              <label className="environment-toggle">
-                <span>
-                  <strong>Atmosphere</strong>
-                  <small>Atmosfer dan cahaya langit</small>
-                </span>
-                <input
-                  type="checkbox"
-                  checked={atmosphere}
-                  onChange={(e) => setAtmosphere(e.target.checked)}
-                />
-              </label>
-            </section>
+          <input
+            className="cesium-range"
+            type="range"
+            min="-100"
+            max="100"
+            value={clipPosition}
+            onChange={(e) => setClipPosition(Number(e.target.value))}
+          />
 
-            {/* Layers */}
-            <section className="control-section">
-              <div className="control-section-title">
-                <span>▤</span>
-                <strong>3D Layers</strong>
-              </div>
+          <span className="cesium-hint">
+            Geser untuk mengubah posisi bidang potong
+          </span>
+        </div>
 
-              <label className="environment-toggle">
-                <span>
-                  <strong>Area Sekitar</strong>
-                </span>
-                <input
-                  type="checkbox"
-                  checked={layers.area}
-                  onChange={() => toggleLayer("area")}
-                />
-              </label>
+        {/* TRANSPARENCY */}
+        <div className="cesium-control-group">
+          <h4>◧ Transparansi Model</h4>
 
-              <label className="environment-toggle">
-                <span>
-                  <strong>Sungai</strong>
-                </span>
-                <input
-                  type="checkbox"
-                  checked={layers.river}
-                  onChange={() => toggleLayer("river")}
-                />
-              </label>
-            </section>
-          </>
-        )}
+          <input
+            className="cesium-range"
+            type="range"
+            min="5"
+            max="100"
+            value={transparency}
+            onChange={(e) => setTransparency(Number(e.target.value))}
+          />
+
+          <span className="cesium-hint">
+            Opasitas model: {transparency}%
+          </span>
+        </div>
+
+        {/* MEASUREMENT */}
+        <div className="cesium-control-group">
+          <h4>📐 Pengukuran</h4>
+
+          <div className="cesium-control-buttons">
+            <button
+              className={measurementMode === "distance" ? "active" : ""}
+              onClick={() => {
+                clearMeasurements();
+                setMeasurementMode("distance");
+              }}
+              type="button"
+            >
+              📏 Ukur Jarak
+            </button>
+
+            <button
+              className={measurementMode === "area" ? "active" : ""}
+              onClick={() => {
+                clearMeasurements();
+                setMeasurementMode("area");
+              }}
+              type="button"
+            >
+              🗺 Ukur Luas Area
+            </button>
+
+            <button
+              className={measurementMode === "height" ? "active" : ""}
+              onClick={() => {
+                clearMeasurements();
+                setMeasurementMode("height");
+              }}
+              type="button"
+            >
+              📐 Ukur Tinggi
+            </button>
+
+            <button
+              onClick={() => {
+                setMeasurementMode("none");
+                clearMeasurements();
+              }}
+              type="button"
+            >
+              ✕ Hapus Pengukuran
+            </button>
+          </div>
+
+          {measurementMode !== "none" && (
+            <p className="cesium-hint">
+              {measurementMode === "distance" &&
+                "Klik dua titik untuk mengukur jarak."}
+              {measurementMode === "height" &&
+                "Klik titik bawah dan titik atas."}
+              {measurementMode === "area" &&
+                "Klik minimal tiga titik, lalu klik kanan untuk menyelesaikan."}
+            </p>
+          )}
+
+          {measurementResult && (
+            <div className="cesium-result">
+              {measurementResult}
+            </div>
+          )}
+        </div>
+
+        {/* NAVIGATION */}
+        <div className="cesium-control-group">
+          <h4>🧭 Navigasi Kamera</h4>
+
+          <div className="cesium-control-buttons">
+            <button onClick={resetCamera} type="button">
+              ⌖ Reset View
+            </button>
+
+            <button onClick={() => setCameraView("top")} type="button">
+              ▣ Top View
+            </button>
+
+            <button onClick={() => setCameraView("north")} type="button">
+              🧭 North
+            </button>
+          </div>
+        </div>
+
+        {/* BLOOM */}
+        <div className="cesium-control-group">
+          <div className="cesium-control-title">
+            <h4>✨ Bloom Effect</h4>
+
+            <label className="cesium-switch">
+              <input
+                type="checkbox"
+                checked={bloom}
+                onChange={(e) => setBloom(e.target.checked)}
+              />
+              <span />
+            </label>
+          </div>
+        </div>
+
+        {/* STREET VIEW */}
+        <div className="cesium-control-group">
+          <h4>🚶 Street View</h4>
+
+          <button
+            className="cesium-full-button"
+            type="button"
+            disabled={!bridge.streetView?.embedUrl}
+            onClick={() => setStreetViewOpen((value) => !value)}
+          >
+            {streetViewOpen ? "Tutup Street View" : "Buka Street View"}
+          </button>
+
+          {!bridge.streetView?.embedUrl && (
+            <span className="cesium-hint">
+              Street View belum tersedia.
+            </span>
+          )}
+        </div>
+
+        {/* RIVER */}
+        <div className="cesium-control-group">
+          <div className="cesium-control-title">
+            <h4>💧 Model Sungai</h4>
+
+            <label className="cesium-switch">
+              <input
+                type="checkbox"
+                checked={layers.river}
+                disabled={!bridge.model.riverAssetId}
+                onChange={(e) =>
+                  setLayers((previous) => ({
+                    ...previous,
+                    river: e.target.checked,
+                  }))
+                }
+              />
+              <span />
+            </label>
+          </div>
+
+          <div className="cesium-control-title">
+            <span className="cesium-secondary-label">Area sekitar</span>
+
+            <label className="cesium-switch">
+              <input
+                type="checkbox"
+                checked={layers.area}
+                disabled={!bridge.model.areaAssetId}
+                onChange={(e) =>
+                  setLayers((previous) => ({
+                    ...previous,
+                    area: e.target.checked,
+                  }))
+                }
+              />
+              <span />
+            </label>
+          </div>
+        </div>
+
+        <button
+          className="cesium-full-button cesium-fullscreen-button"
+          onClick={toggleFullscreen}
+          type="button"
+        >
+          {fullscreen ? "↙ Keluar Fullscreen" : "⛶ Fullscreen"}
+        </button>
+
       </aside>
 
+      {/* STREET VIEW OVERLAY */}
+      {streetViewOpen && bridge.streetView?.embedUrl && (
+        <div className="cesium-streetview-overlay">
+          <div className="cesium-streetview-header">
+            <strong>Street View – {bridge.name}</strong>
+            <button
+              onClick={() => setStreetViewOpen(false)}
+              type="button"
+            >
+              ✕
+            </button>
+          </div>
+
+          <iframe
+            src={bridge.streetView.embedUrl}
+            title={`Street View ${bridge.name}`}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
+      )}
+
+      {/* LOADING */}
       {loading && (
         <div className="viewer-loading">
           <div className="loading-spinner" />
@@ -791,6 +1240,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
         </div>
       )}
 
+      {/* ERROR */}
       {error && (
         <div className="viewer-error">
           <strong>Model 3D belum dapat ditampilkan</strong>
@@ -812,7 +1262,6 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
     </div>
   );
 }
-
 
 function ConditionHistory({ bridge }: { bridge: BridgeData }) {
   const history = useMemo(
@@ -2671,6 +3120,287 @@ function BridgeStyles() {
   .viewer-coordinate {
     left: 9px;
     bottom: 9px;
+  }
+}
+
+/* ==========================================
+   LINTAS CESIUM ADVANCED CONTROL PANEL
+   ========================================== */
+
+.cesium-control-panel {
+  position: absolute;
+  z-index: 10;
+  top: 14px;
+  right: 14px;
+  bottom: 14px;
+  width: 285px;
+  padding: 15px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  color: #f1f6fb;
+  background: rgba(12, 25, 37, 0.93);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(15px);
+  scrollbar-width: thin;
+  scrollbar-color: #50718a transparent;
+}
+
+.cesium-panel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255,255,255,0.16);
+}
+
+.cesium-panel-header strong {
+  color: #f5c84b;
+  font-size: 16px;
+}
+
+.cesium-panel-header span {
+  color: #8da9bf;
+  font-size: 9px;
+  letter-spacing: 1.2px;
+  font-weight: 800;
+}
+
+.cesium-control-group {
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.14);
+}
+
+.cesium-control-group h4 {
+  margin: 0 0 11px;
+  color: #80cfff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.cesium-button-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.cesium-button-grid button,
+.cesium-control-buttons button,
+.cesium-full-button {
+  width: 100%;
+  min-height: 32px;
+  padding: 7px 9px;
+  color: white;
+  background: #087ce9;
+  border: 1px solid #087ce9;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.cesium-button-grid button:hover,
+.cesium-control-buttons button:hover,
+.cesium-full-button:hover {
+  background: #075fb6;
+  border-color: #5cb8f3;
+}
+
+.cesium-button-grid button.active,
+.cesium-control-buttons button.active {
+  background: #145b80;
+  border-color: #63c4f3;
+}
+
+.cesium-control-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cesium-control-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cesium-control-title h4 {
+  margin-bottom: 0;
+}
+
+.cesium-secondary-label {
+  color: #c5d5e2;
+  font-size: 11px;
+}
+
+.cesium-inline-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin: 12px 0;
+}
+
+.cesium-inline-options label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #dce8f1;
+  font-size: 10px;
+}
+
+.cesium-inline-options input {
+  accent-color: #1689f5;
+}
+
+.cesium-range {
+  display: block;
+  width: 100%;
+  margin: 13px 0 5px;
+  accent-color: #1689f5;
+  cursor: pointer;
+}
+
+.cesium-hint {
+  display: block;
+  margin-top: 8px;
+  color: #9fb1c1;
+  font-size: 9px;
+  line-height: 1.6;
+}
+
+.cesium-result {
+  margin-top: 10px;
+  padding: 10px;
+  color: #9be8c7;
+  background: rgba(36, 156, 111, 0.15);
+  border: 1px solid rgba(36, 156, 111, 0.3);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.cesium-switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.cesium-switch input {
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.cesium-switch span {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: #526171;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.cesium-switch span::before {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.cesium-switch input:checked + span {
+  background: #087ce9;
+}
+
+.cesium-switch input:checked + span::before {
+  transform: translateX(16px);
+}
+
+.cesium-switch input:disabled + span {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cesium-fullscreen-button {
+  margin-top: 13px;
+  min-height: 38px;
+}
+
+.cesium-full-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cesium-streetview-overlay {
+  position: absolute;
+  z-index: 20;
+  left: 15px;
+  bottom: 15px;
+  width: min(500px, calc(100% - 330px));
+  height: 300px;
+  overflow: hidden;
+  background: #122337;
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+
+.cesium-streetview-header {
+  height: 38px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 12px;
+  color: white;
+  font-size: 11px;
+}
+
+.cesium-streetview-header button {
+  color: white;
+  background: transparent;
+  border: 0;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.cesium-streetview-overlay iframe {
+  display: block;
+  width: 100%;
+  height: calc(100% - 38px);
+  border: 0;
+}
+
+@media (max-width: 700px) {
+  .cesium-control-panel {
+    top: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: 225px;
+    padding: 11px;
+  }
+
+  .cesium-panel-header strong {
+    font-size: 13px;
+  }
+
+  .cesium-control-group {
+    padding: 11px 0;
+  }
+
+  .cesium-streetview-overlay {
+    left: 8px;
+    bottom: 8px;
+    width: calc(100% - 250px);
+    height: 230px;
   }
 }
 
