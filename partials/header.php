@@ -180,6 +180,22 @@ $isUser = isset($_SESSION['user']);
     font-size: 28px;
 }
 
+/* Desktop: navigasi selalu terlihat */
+.lintas-navigation.collapse:not(.show) {
+    display: flex;
+}
+
+/* Mobile: navigasi mengikuti tombol hamburger */
+@media(max-width: 992px) {
+    .lintas-navigation.collapse:not(.show) {
+        display: none;
+    }
+
+    .lintas-navigation.collapse.show {
+        display: flex;
+    }
+}
+
 @media(max-width: 992px) {
     .lintas-header {
         left: 3%;
