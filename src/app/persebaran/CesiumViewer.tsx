@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -477,7 +478,7 @@ function styleKelurahanEntities(
   // Satu warna untuk seluruh kelurahan dalam kemantren yang sama.
   // Palet pastel dibuat berbeda agar batas kelompok wilayah mudah dikenali,
   // tetapi tetap lembut di atas basemap satelit maupun OSM.
-  const kemantrenPalette = [
+  const satellitePalette = [
     "#B8D8C7", // sage green
     "#B9CBE8", // soft blue
     "#E9C5D7", // dusty pink
@@ -494,6 +495,25 @@ function styleKelurahanEntities(
     "#E5D7B8", // sand
   ];
 
+  // OSM memakai warna yang lebih dalam agar polygon tidak tenggelam
+  // di antara label, jalan, dan detail peta dasar.
+  const osmPalette = [
+    "#86A995", // sage green
+    "#8299B8", // muted blue
+    "#B7839B", // dusty pink
+    "#B99D70", // warm beige
+    "#9C8AB8", // lavender
+    "#7EAAB2", // soft teal
+    "#A5A477", // muted olive
+    "#B98570", // soft terracotta
+    "#8FA477", // pale moss
+    "#A59687", // stone
+    "#8792B9", // periwinkle
+    "#AE879F", // mauve
+    "#83A598", // eucalyptus
+    "#B29A6E", // sand
+  ];
+
   const entities = dataSource.entities.values;
   const kemantrenKeys: string[] = Array.from(
     new Set<string>(
@@ -508,6 +528,9 @@ function styleKelurahanEntities(
 
   // Urutan warna ditentukan dari daftar kemantren yang ditemukan,
   // sehingga warna setiap kemantren konsisten pada seluruh polygon.
+  const isOsm = basemap === "osm";
+  const kemantrenPalette = isOsm ? osmPalette : satellitePalette;
+
   const kemantrenColorByKey = new Map<string, string>();
   kemantrenKeys.forEach((key, index) => {
     kemantrenColorByKey.set(
@@ -529,25 +552,25 @@ function styleKelurahanEntities(
     const fillColor =
       kemantrenColorByKey.get(kemantrenKey) ?? "#D4DCE5";
 
-    // OSM memiliki banyak label dan detail jalan, sehingga fill perlu
-    // sedikit lebih pekat agar warna kemantren tetap terbaca.
-    // Satellite dipertahankan lebih transparan agar citra tetap terlihat.
-    const isOsm = basemap === "osm";
+    // OSM menggunakan palet lebih gelap dan outline abu-abu gelap.
+    // Satellite tetap memakai palet pastel dan outline putih seperti sebelumnya.
     const fillAlpha = isSelected
       ? isOsm ? 0.84 : 0.60
       : isOsm ? 0.75 : 0.35;
 
     entity.polygon.material = Cesium.Color.fromCssColorString(
-      isSelected ? "#8FBFA8" : fillColor
+      isSelected ? (isOsm ? "#718F82" : "#8FBFA8") : fillColor
     ).withAlpha(fillAlpha);
 
     entity.polygon.outline = true;
     entity.polygon.outlineColor = isSelected
-      ? Cesium.Color.fromCssColorString("#174A70").withAlpha(0.98)
-      : Cesium.Color.fromCssColorString("#FFFFFF").withAlpha(
-          isOsm ? 0.94 : 0.82
-        );
-    entity.polygon.outlineWidth = isSelected ? 2.5 : isOsm ? 1.25 : 1;
+      ? Cesium.Color.fromCssColorString(
+          isOsm ? "#34434D" : "#174A70"
+        ).withAlpha(0.98)
+      : Cesium.Color.fromCssColorString(
+          isOsm ? "#59636B" : "#FFFFFF"
+        ).withAlpha(isOsm ? 0.88 : 0.82);
+    entity.polygon.outlineWidth = isSelected ? 2.5 : isOsm ? 1.35 : 1;
 
     entity.polygon.height = 0;
     entity.polygon.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
