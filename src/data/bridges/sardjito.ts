@@ -14,11 +14,11 @@ export const sardjito: BridgeData = {
     city: "Kota Yogyakarta",
 
     // Titik tengah bounding envelope CityGML
-    latitude: -7.7784538073,
-    longitude: 110.3705295862,
+    latitude: -7.762466666666667,
+    longitude: 110.37063888888888,
 
-    latitudeText: `-7°46'42.43" LS`,
-    longitudeText: `110°22'13.91" BT`,
+    latitudeText: `-7°45'44.88" LS`,
+    longitudeText: `110°22'14.30" BT`,
 
     yearBuilt: 1984,
     operationalStatus: "Beroperasi",
