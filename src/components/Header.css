@@ -413,3 +413,95 @@
     font-size: 18px;
   }
 }
+
+/* HEADER KHUSUS HALAMAN BERANDA */
+
+.lintas-header.lintas-header-home {
+  position: fixed;
+  top: 16px;
+  left: 4%;
+  right: 4%;
+  width: 92%;
+  height: 74px;
+  border: 1px solid rgba(255, 255, 255, .75);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .78);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 5px 24px rgba(0, 40, 90, .12);
+}
+
+.lintas-header-home .lintas-header-container {
+  max-width: none;
+  padding: 0 25px;
+}
+
+.lintas-header-home .lintas-logo {
+  height: 58px;
+}
+
+.lintas-header-home .lintas-brand-title {
+  font-size: 23px;
+  color: #003366;
+}
+
+.lintas-header-home .lintas-brand-subtitle {
+  font-size: 11px;
+  color: #003366;
+}
+
+.lintas-header-home .lintas-brand-agency {
+  font-size: 10px;
+  color: #003366;
+}
+
+.lintas-header-home .lintas-navigation {
+  gap: 35px;
+}
+
+.lintas-header-home .lintas-navigation a {
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-width: 82px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.lintas-header-home .lintas-navigation a i {
+  font-size: 22px;
+}
+
+.lintas-header-home .lintas-navigation a::after {
+  bottom: 3px;
+}
+
+.lintas-header-home .lintas-navigation a.active::after {
+  width: 70%;
+}
+
+@media (max-width: 992px) {
+  .lintas-header.lintas-header-home {
+    top: 8px;
+    left: 2%;
+    right: 2%;
+    width: 96%;
+    height: 68px;
+  }
+
+  .lintas-header-home .lintas-navigation {
+    top: 68px;
+    gap: 0;
+  }
+
+  .lintas-header-home .lintas-navigation a {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .lintas-header-home .lintas-navigation a i {
+    font-size: 18px;
+  }
+}
