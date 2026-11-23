@@ -234,8 +234,6 @@
   }
 }
 
-/* HEADER KHUSUS HALAMAN BERANDA */
-
 .lintas-header.lintas-header-home {
   position: fixed;
   top: 16px;
@@ -325,8 +323,6 @@
     font-size: 18px;
   }
 }
-
-/* HEADER KHUSUS HALAMAN BERANDA */
 
 .lintas-header.lintas-header-home {
   position: fixed;
