@@ -570,7 +570,7 @@ function styleKelurahanEntities(
       : Cesium.Color.fromCssColorString("#FFFFFF").withAlpha(
           isOsm ? 0.94 : 0.82
         );
-    entity.polygon.outlineWidth = isSelected ? 2.5 : isOsm ? 1.5 : 1;
+    entity.polygon.outlineWidth = isSelected ? 3 : isOsm ? 2 : 1;
 
     entity.polygon.height = 0;
     entity.polygon.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
