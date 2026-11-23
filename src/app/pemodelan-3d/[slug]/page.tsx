@@ -646,7 +646,9 @@ const setCameraView = useCallback(
           ? -CesiumRuntime.Math.PI_OVER_TWO
           : CesiumRuntime.Math.toRadians(-35);
 
-      viewer.camera.flyToBoundingSphere(main.boundingSphere, {
+      const radius = main.boundingSphere.radius;
+
+viewer.camera.flyToBoundingSphere(main.boundingSphere, {
   duration: 1.3,
   offset: new CesiumRuntime.HeadingPitchRange(
     0,
