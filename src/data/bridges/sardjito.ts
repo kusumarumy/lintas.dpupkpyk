@@ -20,7 +20,7 @@ export const sardjito: BridgeData = {
     latitudeText: `-7°46'42.43" LS`,
     longitudeText: `110°22'13.91" BT`,
 
-    yearBuilt: null,
+    yearBuilt: 1984,
     operationalStatus: "Beroperasi",
     riverValue: 3,
     riverCondition: "Rusak Berat",
@@ -32,16 +32,40 @@ export const sardjito: BridgeData = {
     spans: 1,
   },
 
-  history: [],
+  history: [{
+      year: 2020,
+      value: 3,
+      note: "Rusak Berat",
+    },
+    {
+      year: 2021,
+      value: 3,
+      note: "Rusak Berat",
+    },
+    {
+      year: 2022,
+      value: 3,
+      note: "Rusak Berat",
+    },
+    {
+      year: 2023,
+      value: 3,
+      note: "Rusak Berat",
+    },
+    {
+      year: 2024,
+      value: 3,
+      note: "Rusak Ringan",
+    },],
 
   currentCondition: {
     score: 3,
     condition: "Rusak Berat",
     stability: "",
     handlingPlan: "Memerlukan Perbaikan Secepatnya Dalam 1 tahun",
-    construction: "",
-    damage: [],
-    recommendations: [],
+    construction: "Rangka Baja",
+    damage: ["Cat Rangka Baja Secara Keseluruhan Sudah Mengelupas, Baja Penopang Lantai Jembatan Sudah Mengalami Krosi, Baja Tulangan Plat Lantai Sudah Terlihat dan Korosi"],
+    recommendations: ["Pengecatan Kembali Rangka Baja, Membongkar Lantai Jembatan, Memperbaiki Rangka Baja Penopang Lantai (Dibangun Sejak 184,  Secara Umur Jembatan Sudah 40 Tahun, Umur Jembatan Rata-Rata Diprediksi 50 Tahun)"],
   },
 
   components: {
