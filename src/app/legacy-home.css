@@ -879,3 +879,218 @@ html {
     font-size: 10px;
   }
 }
+
+/* ==========================================
+   LINTAS - GEOSPATIAL HERO ANIMATION
+========================================== */
+
+/* Animasi zoom foto udara */
+.lintas-home-content .hero-background {
+  animation: heroImageZoom 24s ease-in-out infinite alternate;
+  transform-origin: center;
+}
+
+@keyframes heroImageZoom {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.10);
+  }
+}
+
+/* Pola grid digital */
+.lintas-home-content .hero-grid-pattern {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+
+  background-image:
+    linear-gradient(rgba(90, 190, 255, .10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(90, 190, 255, .10) 1px, transparent 1px);
+
+  background-size: 55px 55px;
+
+  mask-image: linear-gradient(
+    90deg,
+    black,
+    transparent 85%
+  );
+
+  animation: gridMove 18s linear infinite;
+}
+
+@keyframes gridMove {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 55px 55px;
+  }
+}
+
+/* Lapisan efek visual */
+.lintas-home-content .hero-visual-effects {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Marker geospasial */
+.lintas-home-content .geo-marker {
+  position: absolute;
+  width: 48px;
+  height: 58px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  color: #fff;
+  font-size: 25px;
+
+  filter: drop-shadow(0 0 10px #00aaff);
+
+  animation: markerFloat 3s ease-in-out infinite;
+}
+
+.lintas-home-content .geo-marker i {
+  width: 45px;
+  height: 45px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50% 50% 50% 0;
+  background: linear-gradient(145deg, #55d9ff, #0878e8);
+  border: 2px solid rgba(255,255,255,.85);
+
+  box-shadow:
+    0 0 12px rgba(0,180,255,.8),
+    0 0 28px rgba(0,140,255,.5);
+}
+
+.lintas-home-content .geo-marker span {
+  width: 12px;
+  height: 12px;
+  margin-top: -2px;
+  border-radius: 50%;
+  background: #8beaff;
+  box-shadow: 0 0 15px #00bfff;
+}
+
+/* Lokasi marker */
+.lintas-home-content .marker-one {
+  top: 27%;
+  left: 30%;
+  animation-delay: 0s;
+}
+
+.lintas-home-content .marker-two {
+  top: 48%;
+  left: 58%;
+  animation-delay: .7s;
+}
+
+.lintas-home-content .marker-three {
+  top: 20%;
+  left: 78%;
+  animation-delay: 1.2s;
+}
+
+.lintas-home-content .marker-four {
+  top: 65%;
+  left: 43%;
+  animation-delay: 1.7s;
+}
+
+@keyframes markerFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-13px);
+  }
+}
+
+/* Efek denyut cahaya */
+.lintas-home-content .geo-marker::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 42px;
+
+  width: 55px;
+  height: 55px;
+
+  border: 2px solid rgba(65,190,255,.8);
+  border-radius: 50%;
+
+  transform: translate(-50%, -50%) scale(.3);
+  opacity: 0;
+
+  animation: markerPulse 2.5s ease-out infinite;
+}
+
+@keyframes markerPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(.3);
+    opacity: .9;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* Cahaya biru bergerak */
+.lintas-home-content .hero-light-beam {
+  position: absolute;
+  top: 0;
+  left: -35%;
+  width: 25%;
+  height: 100%;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(50,180,255,.10),
+    rgba(100,220,255,.22),
+    transparent
+  );
+
+  transform: skewX(-20deg);
+  animation: lightBeamMove 9s ease-in-out infinite;
+}
+
+@keyframes lightBeamMove {
+  0%, 15% {
+    left: -35%;
+  }
+  75%, 100% {
+    left: 120%;
+  }
+}
+
+/* Aksesibilitas */
+@media (prefers-reduced-motion: reduce) {
+  .lintas-home-content .hero-background,
+  .lintas-home-content .hero-grid-pattern,
+  .lintas-home-content .geo-marker,
+  .lintas-home-content .geo-marker::after,
+  .lintas-home-content .hero-light-beam {
+    animation: none !important;
+  }
+}
+
+/* Sembunyikan sebagian marker pada layar kecil */
+@media (max-width: 768px) {
+  .lintas-home-content .marker-three,
+  .lintas-home-content .marker-four {
+    display: none;
+  }
+}
