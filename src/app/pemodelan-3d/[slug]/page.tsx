@@ -501,10 +501,16 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
           break;
 
         case "sun":
-          scene.sun.show = true;
-          scene.moon.show = false;
-          scene.globe.enableLighting = true;
-          break;
+  if (scene.sun) {
+    scene.sun.show = true;
+  }
+
+  if (scene.moon) {
+    scene.moon.show = false;
+  }
+
+  scene.globe.enableLighting = true;
+  break;
       }
 
       setLighting(mode);
