@@ -70,6 +70,8 @@ export default function CesiumViewer({
   onMeasurementUpdate,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+const hoverTooltipRef = useRef<HTMLDivElement | null>(null);
+const hoveredKelurahanRef = useRef<string | null>(null);
 
 const viewerRef = useRef<any>(null);
 const cesiumRef = useRef<any>(null);
@@ -468,11 +470,13 @@ function styleKelurahanEntities(
   dataSource: any,
   Cesium: any,
   selectedName: string | null,
-  basemap: BasemapType
+  basemap: BasemapType,
+  hoveredName: string | null = null
 ) {
   if (!dataSource) return;
 
   const selectedKey = normalizeAreaName(selectedName);
+  const hoveredKey = normalizeAreaName(hoveredName);
 
   // Satu warna untuk seluruh kelurahan dalam kemantren yang sama.
   // Palet pastel dibuat berbeda agar batas kelompok wilayah mudah dikenali,
@@ -544,9 +548,9 @@ function styleKelurahanEntities(
     const kelurahanName = getPropertyValue(entity, "NAME_4", Cesium);
     const kemantrenName = getPropertyValue(entity, "NAME_3", Cesium);
     const kemantrenKey = normalizeAreaName(kemantrenName);
-    const isSelected =
-      selectedKey !== "" &&
-      normalizeAreaName(kelurahanName) === selectedKey;
+    const entityKey = normalizeAreaName(kelurahanName);
+    const isSelected = selectedKey !== "" && entityKey === selectedKey;
+    const isHovered = hoveredKey !== "" && entityKey === hoveredKey;
 
     const fillColor =
       kemantrenColorByKey.get(kemantrenKey) ?? "#D4DCE5";
@@ -555,22 +559,23 @@ function styleKelurahanEntities(
     // kelurahan terbaca jelas di atas detail jalan dan label.
     // Satellite tetap memakai palet pastel awal tanpa perubahan.
     const fillAlpha = isSelected
-      ? isOsm ? 0.86 : 0.60
+      ? isOsm ? 0.78 : 0.68
       : isOsm ? 0.76 : 0.35;
 
-    entity.polygon.material = Cesium.Color.fromCssColorString(
-      fillColor
-    ).withAlpha(fillAlpha);
+    // Warna isi polygon tetap mengikuti kemantren. Highlight pilihan
+    // hanya mengubah outline menjadi merah; hover memakai outline emas.
+    entity.polygon.material = Cesium.Color.fromCssColorString(fillColor)
+      .withAlpha(fillAlpha);
 
     entity.polygon.outline = true;
     entity.polygon.outlineColor = isSelected
-      ? Cesium.Color.fromCssColorString(
-          isOsm ? "#294B63" : "#174A70"
-        ).withAlpha(0.98)
-      : Cesium.Color.fromCssColorString("#FFFFFF").withAlpha(
-          isOsm ? 0.94 : 0.82
-        );
-    entity.polygon.outlineWidth = isSelected ? 3 : isOsm ? 2 : 1;
+      ? Cesium.Color.fromCssColorString("#EF4444").withAlpha(1)
+      : isHovered
+        ? Cesium.Color.fromCssColorString("#FFD166").withAlpha(1)
+        : Cesium.Color.fromCssColorString("#FFFFFF").withAlpha(
+            isOsm ? 0.94 : 0.82
+          );
+    entity.polygon.outlineWidth = isSelected ? 3 : isHovered ? 2.5 : isOsm ? 1.5 : 1;
 
     entity.polygon.height = 0;
     entity.polygon.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
@@ -754,6 +759,80 @@ const dataSource =
           "entities"
         );
 
+        // Tooltip hover untuk batas kelurahan. Klik tetap ditangani
+        // oleh handler di bawah agar fungsi pemilihan jembatan tidak terganggu.
+        const hoverTooltip = document.createElement("div");
+        hoverTooltip.style.position = "absolute";
+        hoverTooltip.style.display = "none";
+        hoverTooltip.style.zIndex = "20";
+        hoverTooltip.style.pointerEvents = "none";
+        hoverTooltip.style.padding = "8px 11px";
+        hoverTooltip.style.borderRadius = "9px";
+        hoverTooltip.style.background = "rgba(15, 23, 42, 0.92)";
+        hoverTooltip.style.border = "1px solid rgba(255,255,255,0.22)";
+        hoverTooltip.style.color = "#fff";
+        hoverTooltip.style.font = "12px/1.45 Arial, sans-serif";
+        hoverTooltip.style.boxShadow = "0 5px 18px rgba(0,0,0,0.22)";
+        hoverTooltip.style.whiteSpace = "nowrap";
+        localViewer.container.appendChild(hoverTooltip);
+        hoverTooltipRef.current = hoverTooltip;
+
+        localViewer.screenSpaceEventHandler.setInputAction(
+          (movement: any) => {
+            if (measurementModeRef.current !== "none") {
+              hoverTooltip.style.display = "none";
+              localViewer.container.style.cursor = "crosshair";
+              return;
+            }
+
+            const picked = localViewer.scene.pick(movement.endPosition);
+            const entity = Cesium.defined(picked) ? picked.id : null;
+            const kelurahanName = entity?.polygon
+              ? String(getPropertyValue(entity, "NAME_4", Cesium) ?? "").trim()
+              : "";
+            const kemantrenName = entity?.polygon
+              ? String(getPropertyValue(entity, "NAME_3", Cesium) ?? "").trim()
+              : "";
+            const isKelurahan = Boolean(
+              kelurahanName && kelurahanDataSourceRef.current?.entities.values.includes(entity)
+            );
+
+            if (!isKelurahan) {
+              if (hoveredKelurahanRef.current) {
+                hoveredKelurahanRef.current = null;
+                styleKelurahanEntities(
+                  kelurahanDataSourceRef.current,
+                  Cesium,
+                  selectedKelurahanRef.current,
+                  basemapRef.current,
+                  null
+                );
+              }
+              hoverTooltip.style.display = "none";
+              localViewer.container.style.cursor = "default";
+              return;
+            }
+
+            if (normalizeAreaName(hoveredKelurahanRef.current) !== normalizeAreaName(kelurahanName)) {
+              hoveredKelurahanRef.current = kelurahanName;
+              styleKelurahanEntities(
+                kelurahanDataSourceRef.current,
+                Cesium,
+                selectedKelurahanRef.current,
+                basemapRef.current,
+                kelurahanName
+              );
+            }
+
+            hoverTooltip.innerHTML = `<strong>${kelurahanName.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c] ?? c))}</strong>${kemantrenName ? `<div style="opacity:.78">${kemantrenName.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c] ?? c))}</div>` : ""}<div style="margin-top:4px;opacity:.68">Klik untuk melihat ringkasan</div>`;
+            hoverTooltip.style.display = "block";
+            hoverTooltip.style.left = `${movement.endPosition.x + 14}px`;
+            hoverTooltip.style.top = `${movement.endPosition.y + 14}px`;
+            localViewer.container.style.cursor = "pointer";
+          },
+          Cesium.ScreenSpaceEventType.MOUSE_MOVE
+        );
+
         // =====================================================
         // 3. KLIK ENTITY UNTUK MEMILIH JEMBATAN
         // =====================================================
@@ -919,6 +998,9 @@ localViewer.screenSpaceEventHandler.setInputAction(
     localViewer.destroy();
   }
 
+  hoverTooltipRef.current?.remove();
+  hoverTooltipRef.current = null;
+  hoveredKelurahanRef.current = null;
   viewerRef.current = null;
   imageryLayerRef.current = null;
   dataSourceRef.current = null;
@@ -988,7 +1070,7 @@ useEffect(() => {
   const Cesium = cesiumRef.current;
   const source = kelurahanDataSourceRef.current;
   if (!viewer || viewer.isDestroyed() || !Cesium || !source) return;
-  styleKelurahanEntities(source, Cesium, selectedKelurahan, basemap);
+  styleKelurahanEntities(source, Cesium, selectedKelurahan, basemap, hoveredKelurahanRef.current);
 }, [selectedKelurahan, basemap]);
 
 // RESET KOMPAS: arah utara berada di atas
