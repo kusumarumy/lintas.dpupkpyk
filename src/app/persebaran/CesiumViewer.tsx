@@ -534,8 +534,8 @@ function styleKelurahanEntities(
     // Satellite dipertahankan lebih transparan agar citra tetap terlihat.
     const isOsm = basemap === "osm";
     const fillAlpha = isSelected
-      ? isOsm ? 0.64 : 0.52
-      : isOsm ? 0.50 : 0.30;
+      ? isOsm ? 0.84 : 0.60
+      : isOsm ? 0.75 : 0.35;
 
     entity.polygon.material = Cesium.Color.fromCssColorString(
       isSelected ? "#8FBFA8" : fillColor
