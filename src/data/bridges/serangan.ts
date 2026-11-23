@@ -20,7 +20,7 @@ export const sardjito: BridgeData = {
     latitudeText: `-7°48'3.87" LS`,
     longitudeText: `110°21'17.27" BT`,
 
-    yearBuilt: ,
+    yearBuilt: "-",
     operationalStatus: "Beroperasi",
     riverValue: 2,
     riverCondition: "Rusak Sedang",
@@ -35,54 +35,54 @@ export const sardjito: BridgeData = {
   history: [{
       year: 2020,
       value: 2,
-      note: "Rusak Ringan",
+      note: "Rusak Sedang",
     },
     {
       year: 2021,
       value: 2,
-      note: "Rusak Ringan",
+      note: "Rusak Sedang",
     },
     {
       year: 2022,
       value: 2,
-      note: "Rusak Ringan",
+      note: "Rusak Sedang",
     },
     {
       year: 2023,
       value: 2,
-      note: "Rusak Ringan",
+      note: "Rusak Sedang",
     },
     {
       year: 2024,
       value: 2,
-      note: "Rusak Ringan",
+      note: "Rusak Sedang",
     },],
 
   currentCondition: {
-    score: 3,
-    condition: "Rusak Berat",
+    score: 2,
+    condition: "Rusak Sedang",
     stability: "",
-    handlingPlan: "Memerlukan Perbaikan Secepatnya Dalam 1 tahun",
-    construction: "Rangka Baja",
-    damage: ["Cat Rangka Baja Secara Keseluruhan Sudah Mengelupas, Baja Penopang Lantai Jembatan Sudah Mengalami Krosi, Baja Tulangan Plat Lantai Sudah Terlihat dan Korosi"],
-    recommendations: ["Pengecatan Kembali Rangka Baja, Membongkar Lantai Jembatan, Memperbaiki Rangka Baja Penopang Lantai (Dibangun Sejak 184,  Secara Umur Jembatan Sudah 40 Tahun, Umur Jembatan Rata-Rata Diprediksi 50 Tahun)"],
+    handlingPlan: "",
+    construction: "",
+    damage: [""],
+    recommendations: [""],
   },
 
   components: {
     superstructure: [
       {
         name: "Struktur Atas",
-        type: "Rangka Baja",
+        type: "",
         value: 3,
       },
       {
         name: "Sistem Lantai",
-        type: "Aspal",
+        type: "",
         value: 2,
       },
       {
         name: "Perlengkapan (Sandaran, Railing, Pipa Cucuran)",
-        type: "Beton dan Pas. Bata",
+        type: "",
         value: 1,
       },
     ],
@@ -90,17 +90,17 @@ export const sardjito: BridgeData = {
     substructure: [
       {
         name: "Abutmen/Pilar",
-        type: "Beton Bertulang",
+        type: "",
         value: 0,
       },
       {
         name: "Pondasi",
-        type: "Beton Bertulang",
+        type: "",
         value: 0,
       },
       {
         name: "Dinding Penahan",
-        type: "Pasangan Batu",
+        type: "",
         value: 0,
       },
     ],
