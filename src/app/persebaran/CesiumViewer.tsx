@@ -185,7 +185,7 @@ function drawMeasurement(Cesium: any) {
       polyline: {
         positions,
         width: 4,
-        material: Cesium.Color.fromCssColorString("#FFD166"),
+        material: Cesium.Color.fromCssColorString("#FF1744"),
         clampToGround: true,
       },
     });
