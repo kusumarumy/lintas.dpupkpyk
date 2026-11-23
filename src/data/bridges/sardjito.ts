@@ -89,7 +89,7 @@ export const sardjito: BridgeData = {
   photos: [
     {
     title: "Foto Jembatan Sardjito 1",
-    url: r2Asset("landscape/sardjito.jpg"),
+    url: r2Asset("landscape/sardjito.JPG"),
   },
   ],
 
