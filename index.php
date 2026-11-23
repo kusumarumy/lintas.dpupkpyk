@@ -906,109 +906,619 @@ session_start();
     }
 }
 
+/* =========================================
+   LINTAS - FINAL HOMEPAGE MOCKUP DESIGN
+========================================= */
+
+html {
+    scroll-behavior: smooth;
+}
+
+html,
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100%;
+    overflow-x: hidden;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background: #f4f8ff;
+}
+
+/* HERO */
+
+.hero-section {
+    position: relative;
+    width: 100%;
+    height: min(780px, 92vh);
+    min-height: 650px;
+    overflow: hidden;
+    isolation: isolate;
+    background: #003366;
+}
+
+/* Background image */
+
+.hero-background {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.hero-background img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 48%;
+    transform: scale(1.04);
+    animation: heroZoom 20s ease-in-out infinite alternate;
+}
+
+@keyframes heroZoom {
+    from { transform: scale(1.04); }
+    to { transform: scale(1.13); }
+}
+
+/* Overlay */
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0,31,70,.91) 0%,
+            rgba(0,43,88,.79) 32%,
+            rgba(0,43,88,.37) 62%,
+            rgba(0,30,65,.10) 100%
+        ),
+        linear-gradient(
+            0deg,
+            rgba(0,31,65,.62) 0%,
+            transparent 50%
+        );
+}
+
+/* Grid decoration */
+
+.hero-grid {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: .13;
+
+    background-image:
+        linear-gradient(rgba(255,255,255,.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.15) 1px, transparent 1px);
+
+    background-size: 65px 65px;
+
+    mask-image: linear-gradient(
+        90deg,
+        black,
+        transparent 80%
+    );
+}
+
+/* Main content */
+
+.hero-content {
+    position: relative;
+    z-index: 3;
+
+    width: min(1440px, 88%);
+    height: 100%;
+    margin: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 45px;
+    padding: 100px 0 70px;
+}
+
+/* LEFT TEXT */
+
+.hero-text {
+    max-width: 720px;
+    color: #fff;
+    animation: heroFade .9s ease both;
+}
+
+.hero-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 11px 17px;
+    margin-bottom: 23px;
+
+    color: #fff;
+    background: rgba(0,75,135,.42);
+
+    border: 1px solid rgba(255,255,255,.4);
+    border-radius: 30px;
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+
+    backdrop-filter: blur(10px);
+}
+
+.hero-label i {
+    color: #ffc20e;
+    font-size: 17px;
+}
+
+.hero-text h1 {
+    font-size: clamp(36px, 4vw, 59px);
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -1.5px;
+    color: #fff;
+    margin: 0;
+}
+
+.hero-text h1 span {
+    color: #ffc20e;
+}
+
+.hero-line {
+    width: 110px;
+    height: 5px;
+    border-radius: 10px;
+    background: #ffc20e;
+    margin: 23px 0;
+}
+
+.hero-text p {
+    max-width: 570px;
+    font-size: 17px;
+    line-height: 1.55;
+    color: rgba(255,255,255,.94);
+    margin-bottom: 28px;
+}
+
+/* CTA BUTTON */
+
+.hero-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 15px 26px;
+
+    background: linear-gradient(135deg,#ffcf29,#f2b705);
+    color: #003366;
+
+    border-radius: 40px;
+    text-decoration: none;
+
+    font-size: 15px;
+    font-weight: 800;
+
+    box-shadow: 0 12px 30px rgba(0,0,0,.25);
+    transition: .3s ease;
+}
+
+.hero-button:hover {
+    background: #ffdc58;
+    color: #003366;
+    transform: translateY(-4px);
+    box-shadow: 0 18px 35px rgba(0,0,0,.32);
+}
+
+/* RIGHT GLASS PANEL */
+
+.hero-floating-panel {
+    width: 285px;
+    flex-shrink: 0;
+
+    padding: 23px 20px;
+
+    background: rgba(0,55,105,.69);
+
+    border: 1px solid rgba(255,255,255,.42);
+    border-radius: 22px;
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    box-shadow:
+        0 25px 55px rgba(0,0,0,.30),
+        inset 0 1px 0 rgba(255,255,255,.25);
+
+    transform: perspective(1000px) rotateY(-5deg);
+
+    animation: floatingPanel 5s ease-in-out infinite;
+}
+
+.floating-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding-bottom: 17px;
+
+    color: white;
+    font-size: 15px;
+    font-weight: 800;
+
+    border-bottom: 1px solid rgba(255,255,255,.2);
+}
+
+.live-indicator {
+    width: 11px;
+    height: 11px;
+    background: #28ed91;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #28ed91;
+}
+
+.floating-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 16px 0;
+
+    color: white;
+    border-bottom: 1px solid rgba(255,255,255,.17);
+}
+
+.floating-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(255,255,255,.16);
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 12px;
+
+    color: #fff;
+    font-size: 24px;
+}
+
+.floating-item strong {
+    display: block;
+    font-size: 14px;
+}
+
+.floating-item small {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    color: rgba(255,255,255,.78);
+}
+
+.floating-footer {
+    padding-top: 16px;
+    color: #ffc20e;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.floating-footer-line {
+    width: 110px;
+    height: 4px;
+    background: #ffc20e;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+@keyframes floatingPanel {
+    0%,100% {
+        transform: perspective(1000px)
+                   rotateY(-5deg)
+                   translateY(0);
+    }
+
+    50% {
+        transform: perspective(1000px)
+                   rotateY(-3deg)
+                   translateY(-10px);
+    }
+}
+
+/* SCROLL */
+
+.hero-scroll {
+    position: absolute;
+    z-index: 4;
+    bottom: 33px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.hero-scroll i {
+    font-size: 19px;
+}
+
+.hero-scroll i:last-child {
+    animation: scrollDown 1.5s infinite;
+}
+
+@keyframes scrollDown {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(7px); }
+}
+
+/* HERO TO ABOUT TRANSITION */
+
+.hero-section::after {
+    content: "";
+    position: absolute;
+    z-index: 5;
+    bottom: -54px;
+    left: -5%;
+    width: 110%;
+    height: 95px;
+
+    background: #f4f8ff;
+    border-radius: 50% 50% 0 0;
+}
+
+/* ABOUT SECTION */
+
+.about-section {
+    position: relative;
+    background: linear-gradient(
+        180deg,
+        #f4f8ff 0%,
+        #ffffff 100%
+    ) !important;
+
+    padding: 75px 0 85px !important;
+}
+
+.about-wrapper {
+    gap: 55px !important;
+}
+
+.about-image {
+    width: 100%;
+    max-width: 590px;
+    height: 350px;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,.9);
+    box-shadow: 0 15px 40px rgba(0,51,102,.18);
+}
+
+.about-right h2 {
+    font-size: 40px;
+    font-weight: 800;
+    color: #003366;
+}
+
+.about-right h2 span {
+    color: #f2b705;
+}
+
+.about-right p {
+    font-size: 17px;
+    line-height: 1.55;
+    color: #263b56;
+    text-align: left;
+}
+
+/* FEATURE SECTION */
+
+#fitur {
+    background: #f4f8ff !important;
+}
+
+/* RESPONSIVE */
+
+@media(max-width: 992px) {
+    .hero-section {
+        height: auto;
+        min-height: 900px;
+    }
+
+    .hero-content {
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 35px;
+        padding: 140px 0 100px;
+    }
+
+    .hero-text {
+        max-width: 100%;
+    }
+
+    .hero-floating-panel {
+        width: min(100%, 420px);
+        transform: none;
+        animation: none;
+    }
+
+    .hero-section::after {
+        bottom: -60px;
+    }
+}
+
+@media(max-width: 576px) {
+    .hero-section {
+        min-height: 850px;
+    }
+
+    .hero-content {
+        width: 88%;
+        padding-top: 125px;
+    }
+
+    .hero-text h1 {
+        font-size: 35px;
+    }
+
+    .hero-text p {
+        font-size: 14px;
+    }
+
+    .hero-label {
+        font-size: 9px;
+        padding: 9px 12px;
+    }
+
+    .hero-floating-panel {
+        padding: 18px;
+    }
+
+    .hero-scroll {
+        display: none;
+    }
+
+    .about-image {
+        height: 250px;
+    }
+
+    .about-right h2 {
+        font-size: 30px;
+    }
+
+    .about-right p {
+        font-size: 15px;
+    }
+}
+
+@media(prefers-reduced-motion: reduce) {
+    .hero-background img,
+    .hero-floating-panel,
+    .hero-scroll i {
+        animation: none !important;
+    }
+}
+
   </style>
 </head>
 
 <body>
   <?php include __DIR__ . "/partials/header.php"; ?>
 
-
 <section class="hero-section">
 
-  <!-- Background foto drone -->
-  <div class="hero-background">
-    <img src="assets/profil.jpg"
-         alt="Visualisasi Jembatan Kota Yogyakarta">
-  </div>
+    <!-- Foto drone sebagai background utama -->
+    <div class="hero-background">
+        <img src="assets/profil.jpg"
+             alt="Landscape infrastruktur jembatan Kota Yogyakarta">
+    </div>
 
-  <!-- Overlay -->
-  <div class="hero-overlay"></div>
+    <!-- Overlay sinematik -->
+    <div class="hero-overlay"></div>
 
-  <!-- Ornamen geospasial -->
-  <div class="hero-grid"></div>
+    <!-- Ornamen geospasial -->
+    <div class="hero-grid"></div>
 
-  <div class="hero-content">
+    <div class="hero-content">
 
-    <div class="hero-text">
+        <!-- Konten sebelah kiri -->
+        <div class="hero-text">
 
-      <span class="hero-label">
-        <i class="bi bi-globe-asia-australia"></i>
-        GEOSPATIAL INFORMATION SYSTEM
-      </span>
+            <span class="hero-label">
+                <i class="bi bi-geo-alt-fill"></i>
+                GEOSPATIAL INFORMATION SYSTEM
+            </span>
 
-      <h1>
-        Layanan Informasi<br>
-        Jembatan <span>Kota Yogyakarta</span>
-      </h1>
+            <h1>
+                Layanan Informasi<br>
+                <span>Jembatan Kota Yogyakarta</span>
+                <br>(LINTAS)
+            </h1>
 
-      <h2>LINTAS</h2>
+            <div class="hero-line"></div>
 
-      <div class="hero-line"></div>
+            <p>
+                Platform informasi geospasial untuk visualisasi,
+                pemantauan, pengelolaan, dan perencanaan
+                infrastruktur jembatan Kota Yogyakarta.
+            </p>
 
-      <p>
-        Platform informasi geospasial untuk visualisasi,
-        pemantauan, pengelolaan, dan perencanaan
-        infrastruktur jembatan Kota Yogyakarta.
-      </p>
+            <a href="#fitur" class="hero-button">
+                <i class="bi bi-map-fill"></i>
+                Jelajahi WebGIS
+                <i class="bi bi-chevron-right"></i>
+            </a>
 
-      <a href="#fitur" class="hero-button">
-        <i class="bi bi-map"></i>
-        Jelajahi WebGIS
-        <i class="bi bi-arrow-right"></i>
-      </a>
+        </div>
+
+        <!-- Panel informasi sebelah kanan -->
+        <div class="hero-floating-panel">
+
+            <div class="floating-header">
+                <span class="live-indicator"></span>
+                Informasi Geospasial
+            </div>
+
+            <div class="floating-item">
+                <div class="floating-icon">
+                    <i class="bi bi-cone-striped"></i>
+                </div>
+
+                <div>
+                    <strong>Data Jembatan</strong>
+                    <small>Informasi Infrastruktur</small>
+                </div>
+            </div>
+
+            <div class="floating-item">
+                <div class="floating-icon">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </div>
+
+                <div>
+                    <strong>Data Spasial</strong>
+                    <small>Informasi Lokasi</small>
+                </div>
+            </div>
+
+            <div class="floating-item">
+                <div class="floating-icon">
+                    <i class="bi bi-box"></i>
+                </div>
+
+                <div>
+                    <strong>Pemodelan 3D</strong>
+                    <small>Visualisasi Infrastruktur</small>
+                </div>
+            </div>
+
+            <div class="floating-footer">
+                <div class="floating-footer-line"></div>
+                DPUPKP KOTA YOGYAKARTA
+            </div>
+
+        </div>
 
     </div>
 
-    <!-- Floating information panel -->
-    <div class="hero-floating-panel">
-
-      <div class="floating-header">
-        <span class="live-indicator"></span>
-        INFORMASI GEOSPASIAL
-      </div>
-
-      <div class="floating-item">
-        <div class="floating-icon">
-          <i class="bi bi-buildings"></i>
-        </div>
-        <div>
-          <strong>Data Jembatan</strong>
-          <small>Informasi Infrastruktur</small>
-        </div>
-      </div>
-
-      <div class="floating-item">
-        <div class="floating-icon">
-          <i class="bi bi-geo-alt"></i>
-        </div>
-        <div>
-          <strong>Data Spasial</strong>
-          <small>Informasi Lokasi</small>
-        </div>
-      </div>
-
-      <div class="floating-item">
-        <div class="floating-icon">
-          <i class="bi bi-box"></i>
-        </div>
-        <div>
-          <strong>Pemodelan 3D</strong>
-          <small>Visualisasi Infrastruktur</small>
-        </div>
-      </div>
-
-      <div class="floating-footer">
-        DPUPKP KOTA YOGYAKARTA
-      </div>
-
+    <div class="hero-scroll">
+        <i class="bi bi-mouse"></i>
+        <span>SCROLL UNTUK MENJELAJAHI</span>
+        <i class="bi bi-chevron-down"></i>
     </div>
-
-  </div>
-
-  <div class="hero-scroll">
-    <span>SCROLL UNTUK MENJELAJAHI</span>
-    <i class="bi bi-chevron-down"></i>
-  </div>
 
 </section>
 
