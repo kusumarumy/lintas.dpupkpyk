@@ -58,6 +58,36 @@ function numberValue(value: unknown): number | null {
   return Number.isFinite(result) ? result : null;
 }
 
+function normalizeAreaName(value: unknown) {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function conditionCode(value: unknown): number | null {
+  const text = String(value ?? "").trim().toLowerCase();
+  const numeric = text.match(/^([0-5])(?:\s|[:.-]|$)/);
+  if (numeric) return Number(numeric[1]);
+  if (/^(baik|mantap)$/.test(text)) return 0;
+  if (text.includes("rusak ringan")) return 1;
+  if (text.includes("rusak sedang")) return 2;
+  if (text.includes("rusak berat")) return 3;
+  if (text.includes("kritis")) return 4;
+  if (text.includes("runtuh")) return 5;
+  return null;
+}
+
+const CONDITION_LABELS = [
+  "Baik",
+  "Rusak Ringan",
+  "Rusak Sedang",
+  "Rusak Berat",
+  "Kritis",
+  "Runtuh",
+];
+
 function findValue(properties: Raw, keys: string[]) {
   for (const key of keys) {
     const value = properties[key];
@@ -186,6 +216,10 @@ export default function PersebaranPage() {
 
   const [selectedBridge, setSelectedBridge] =
     useState<BridgeMapItem | null>(null);
+  const [selectedKelurahan, setSelectedKelurahan] = useState<{
+    nama: string;
+    kemantren: string;
+  } | null>(null);
 
   const [flyToSignal, setFlyToSignal] = useState(0);
   const [modelSignal, setModelSignal] = useState(0);
@@ -320,7 +354,28 @@ console.table(
       bridge.longitude !== null && bridge.latitude !== null
   ).length;
 
+const selectedKelurahanStats = useMemo(() => {
+  if (!selectedKelurahan) return null;
+  const key = normalizeAreaName(selectedKelurahan.nama);
+  const inArea = bridges.filter(
+    (bridge) => normalizeAreaName(bridge.kelurahan) === key
+  );
+  const counts = CONDITION_LABELS.map((label, code) => ({
+    label,
+    count: inArea.filter((bridge) => conditionCode(bridge.kondisi) === code).length,
+  }));
+  const unknown = inArea.filter((bridge) => conditionCode(bridge.kondisi) === null).length;
+  return { total: inArea.length, counts, unknown };
+}, [bridges, selectedKelurahan]);
+
+const handleSelectKelurahan = (nama: string, kemantren: string) => {
+  setSelectedBridge(null);
+  setSelectedKelurahan({ nama, kemantren });
+  setShowInspector(false);
+};
+
 const handleFlyTo = (bridge: BridgeMapItem) => {
+  setSelectedKelurahan(null);
   setSelectedBridge(bridge);
   setShowInspector(true);
   setFlyToSignal((value) => value + 1);
@@ -497,6 +552,8 @@ const handleFlyTo = (bridge: BridgeMapItem) => {
         <section className="lintas-map-stage">
 <CesiumViewer
   bridges={bridges}
+  selectedKelurahan={selectedKelurahan?.nama ?? null}
+  onSelectKelurahan={handleSelectKelurahan}
   selectedBridge={selectedBridge}
   flyToSignal={flyToSignal}
   modelSignal={modelSignal}
@@ -507,6 +564,32 @@ const handleFlyTo = (bridge: BridgeMapItem) => {
   clearMeasurementSignal={clearMeasurementSignal}
   onMeasurementUpdate={handleMeasurementUpdate}
 />
+{selectedKelurahan && selectedKelurahanStats && (
+  <aside className="lintas-kelurahan-summary">
+    <div className="lintas-kelurahan-summary-head">
+      <div>
+        <strong>{selectedKelurahan.nama}</strong>
+        <span>{selectedKelurahan.kemantren || "Kota Yogyakarta"}</span>
+      </div>
+      <button type="button" onClick={() => setSelectedKelurahan(null)} aria-label="Tutup statistik kelurahan">×</button>
+    </div>
+    <div className="lintas-kelurahan-total">
+      <strong>{selectedKelurahanStats.total}</strong>
+      <span>Jumlah jembatan</span>
+    </div>
+    <div className="lintas-kelurahan-breakdown">
+      {selectedKelurahanStats.counts.map((item) => (
+        <div key={item.label}>
+          <span>{item.label}</span>
+          <strong>{item.count}</strong>
+        </div>
+      ))}
+      {selectedKelurahanStats.unknown > 0 && (
+        <div><span>Kondisi belum terklasifikasi</span><strong>{selectedKelurahanStats.unknown}</strong></div>
+      )}
+    </div>
+  </aside>
+)}
 <div className="lintas-map-toolbar">
 
   {/* KOMPAS */}
