@@ -78,7 +78,7 @@ body:has(.lintas-home-content) {
   width: min(1440px, 100%);
   min-height: 100%;
   margin: auto;
-  padding: 155px 6.5% 120px;
+  padding: 50px 6.5% 120px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;
   align-items: center;
@@ -549,7 +549,7 @@ body:has(.lintas-home-content) {
   .lintas-home-content .hero-inner {
     grid-template-columns: 1fr 260px;
     gap: 25px;
-    padding: 145px 5% 125px;
+    padding: 50px 5% 125px;
   }
 
   .lintas-home-content .hero-copy h1 {
