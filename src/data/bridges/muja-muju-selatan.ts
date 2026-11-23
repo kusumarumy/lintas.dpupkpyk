@@ -1,4 +1,4 @@
-import type { BridgeData } from "./types";
+﻿import type { BridgeData } from "./types";
 import { r2Asset } from "@/lib/assets";
 
 export const mujaMujuSelatan: BridgeData = {
@@ -14,18 +14,18 @@ export const mujaMujuSelatan: BridgeData = {
     city: "Kota Yogyakarta",
     latitude: -7.8023167,
     longitude: 110.3975389,
-    latitudeText: `-7°48'8.34" LS`,
-    longitudeText: `110°23'51.14" BT`,
+    latitudeText: `-7Â°48'8.34" LS`,
+    longitudeText: `110Â°23'51.14" BT`,
     yearBuilt: 2019,
-    operationalStatus: "",
-    riverValue: null,
-    riverCondition: "",
+    operationalStatus: "Beroperasi",
+    riverValue: 1,
+    riverCondition: "Rusak Ringan",
   },
 
   dimensions: {
-    length: null,
-    width: null,
-    spans: null,
+    length: 45.6,
+    width: 9.4,
+    spans: 1,
   },
 
   history: [
@@ -39,7 +39,7 @@ export const mujaMujuSelatan: BridgeData = {
   currentCondition: {
     score: 1,
     condition: "Rusak Ringan",
-    stability: "",
+    stability: "Mantap",
     handlingPlan: "Memerlukan Perbaikan Secara Rutin",
     construction: "Girder Prategang",
     damage: ["Cat parapet dan railing pudar"],
@@ -48,14 +48,14 @@ export const mujaMujuSelatan: BridgeData = {
 
   components: {
     superstructure: [
-      { name: "Struktur Atas", type: "", value: null },
-      { name: "Sistem Lantai", type: "", value: null },
-      { name: "Perlengkapan", type: "", value: null },
+      { name: "Struktur Atas", type: "Girder Prategang", value: 3 },
+      { name: "Sistem Lantai", type: "Aspal", value: 1 },
+      { name: "Perlengkapan (Sandaran, Railing, Pipa Cucuran)", type: "Beton dan Pipa Baja", value: 1 },
     ],
     substructure: [
-      { name: "Abutmen/Pilar", type: "", value: null },
-      { name: "Pondasi", type: "", value: null },
-      { name: "Dinding Penahan", type: "", value: null },
+      { name: "Abutmen/Pilar", type: "Beton Bertulang", value: 0 },
+      { name: "Pondasi", type: "Beton", value: 0 },
+      { name: "Dinding Penahan", type: "Pasangan Batu", value: 1 },
     ],
   },
 
@@ -80,9 +80,25 @@ export const mujaMujuSelatan: BridgeData = {
   ],
 
   documents: [
-    { title: "Dokumen Teknis PCI Girder Jembatan Sisi Selatan", type: "pdf", url: r2Asset("Jembatan PCI Muja Muju Sisi Selatan.pdf") },
-    { title: "Data DWG PCI Girder Jembatan", type: "zip", url: r2Asset("jembatan_mujamuju_selatan.zip") },
-    { title: "Peta Planimetris Jembatan Muja-Muju", type: "pdf", url: r2Asset("Peta Planimetris Jembatan Muja-Muju.pdf") },
-    { title: "Data Kontur Jembatan Muja-Muju", type: "zip", url: r2Asset("kontur_mujamuju.zip") },
+    {
+      title: "Dokumen Teknis PCI Girder Jembatan Sisi Selatan",
+      type: "pdf",
+      url: r2Asset("Jembatan PCI Muja Muju Sisi Selatan.pdf", "data")
+    },
+    {
+      title: "Data DWG PCI Girder Jembatan",
+      type: "zip",
+      url: r2Asset("jembatan_mujamuju_selatan.zip", "data")
+    },
+    {
+      title: "Peta Planimetris Jembatan Muja-Muju",
+      type: "pdf",
+      url: r2Asset("Peta Planimetris Jembatan Muja-Muju.pdf", "data")
+    },
+    {
+      title: "Data Kontur Jembatan Muja-Muju",
+      type: "zip",
+      url: r2Asset("kontur_mujamuju.zip", "data")
+   },
   ],
 };

@@ -7,7 +7,7 @@ export const winongUtara: BridgeData = {
   name: "Jembatan Winong Utara",
 
   identity: {
-    roadNumber: "",
+    roadNumber: "N_2105",
     roadName: "Jl. Perintis Kemerdekaan (Sisi Barat) dan Jl. Ngeksigondo (Sisi Timur)",
     village: "Pandeyan",
     district: "Umbulharjo",
@@ -17,15 +17,15 @@ export const winongUtara: BridgeData = {
     latitudeText: `-7°49'7.97" LS`,
     longitudeText: `110°23'40.52" BT`,
     yearBuilt: null,
-    operationalStatus: "",
-    riverValue: null,
-    riverCondition: "",
+    operationalStatus: "Beroperasi",
+    riverValue: 1,
+    riverCondition: "Rusak Ringan",
   },
 
   dimensions: {
-    length: null,
-    width: null,
-    spans: null,
+    length: 60,
+    width: 7.9,
+    spans: 3,
   },
 
   history: [
@@ -39,7 +39,7 @@ export const winongUtara: BridgeData = {
   currentCondition: {
     score: 3,
     condition: "Rusak Berat",
-    stability: "",
+    stability: "Tidak Mantap",
     handlingPlan: "Memerlukan Perbaikan Secepatnya Dalam 1 Tahun",
     construction: "Baja Komposit",
     damage: [
@@ -56,14 +56,14 @@ export const winongUtara: BridgeData = {
 
   components: {
     superstructure: [
-      { name: "Struktur Atas", type: "", value: null },
-      { name: "Sistem Lantai", type: "", value: null },
-      { name: "Perlengkapan", type: "", value: null },
+      { name: "Struktur Atas", type: "Baja Komposit", value: 0 },
+      { name: "Sistem Lantai", type: "Aspal", value: 3 },
+      { name: "Perlengkapan (Sandaran, Railing, Pipa Cucuran)", type: "Beton dan Pipa Baja", value: 1 },
     ],
     substructure: [
-      { name: "Abutmen/Pilar", type: "", value: null },
-      { name: "Pondasi", type: "", value: null },
-      { name: "Dinding Penahan", type: "", value: null },
+      { name: "Abutmen/Pilar", type: "Pasangan Batu", value: 2 },
+      { name: "Pondasi", type: "Pasangan Batu", value: 0 },
+      { name: "Dinding Penahan", type: "Pasangan Batu", value: 0 },
     ],
   },
 
@@ -88,9 +88,9 @@ export const winongUtara: BridgeData = {
   ],
 
   documents: [
-    { title: "Dokumen Teknis Jembatan Sisi Utara", type: "pdf", url: r2Asset("Jembatan Perintis Kemerdekaan Sisi Utara.pdf") },
-    { title: "Data DWG Jembatan Winong Utara", type: "zip", url: r2Asset("jembatan_winong_utara.zip") },
-    { title: "Peta Planimetris Jembatan Winong", type: "pdf", url: r2Asset("Peta Planimetris Jembatan Winong.pdf") },
-    { title: "Data Kontur Jembatan Winong", type: "zip", url: r2Asset("kontur_kemerdekaan.zip") },
+    { title: "Dokumen Teknis Jembatan Sisi Utara", type: "pdf", url: r2Asset("Jembatan Perintis Kemerdekaan Sisi Utara.pdf", "data") },
+    { title: "Data DWG Jembatan Winong Utara", type: "zip", url: r2Asset("jembatan_winong_utara.zip", "data") },
+    { title: "Peta Planimetris Jembatan Winong", type: "pdf", url: r2Asset("Peta Planimetris Jembatan Winong.pdf", "data") },
+    { title: "Data Kontur Jembatan Winong", type: "zip", url: r2Asset("kontur_kemerdekaan.zip", "data") },
   ],
 };

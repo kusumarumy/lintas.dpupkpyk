@@ -1,4 +1,4 @@
-
+﻿
 import type { BridgeData } from "./types";
 import { r2Asset } from "@/lib/assets";
 
@@ -17,19 +17,19 @@ export const kleringan: BridgeData = {
 
     latitude: -7.7897333,
     longitude: 110.3687889,
-    latitudeText: `7°47'23.04" LS`,
-    longitudeText: `110°22'7.64" BT`,
+    latitudeText: `7Â°47'23.04" LS`,
+    longitudeText: `110Â°22'7.64" BT`,
 
     yearBuilt: null,
-    operationalStatus: "",
-    riverValue: null,
-    riverCondition: "",
+    operationalStatus: "Beroperasi",
+    riverValue: 1,
+    riverCondition: "Rusak Ringan",
   },
 
   dimensions: {
-    length: null,
-    width: null,
-    spans: null,
+    length: 36,
+    width: 17,
+    spans: 1,
   },
 
   history: [
@@ -62,8 +62,8 @@ export const kleringan: BridgeData = {
 
   currentCondition: {
     score: 1,
-    condition: "",
-    stability: "",
+    condition: "Rusak Ringan",
+    stability: "Mantap",
     handlingPlan: "Memerlukan Perbaikan Secara Rutin",
     construction: "Girder Prategang",
 
@@ -80,36 +80,36 @@ export const kleringan: BridgeData = {
     superstructure: [
       {
         name: "Struktur Atas",
-        type: "",
-        value: null,
+        type: "Girder Prategang",
+        value: 0,
       },
       {
         name: "Sistem Lantai",
-        type: "",
-        value: null,
+        type: "Aspal",
+        value: 1,
       },
       {
         name: "Perlengkapan (Sandaran, Railing, Pipa Cucuran)",
-        type: "",
-        value: null,
+        type: "Beton",
+        value: 1,
       },
     ],
 
     substructure: [
       {
         name: "Abutmen/Pilar",
-        type: "",
-        value: null,
+        type: "Beton Bertulang",
+        value: 1,
       },
       {
         name: "Pondasi",
-        type: "",
-        value: null,
+        type: "Beton",
+        value: 0,
       },
       {
         name: "Dinding Penahan",
-        type: "",
-        value: null,
+        type: "Pasangan Batu",
+        value: 0,
       },
     ],
   },
@@ -150,17 +150,26 @@ export const kleringan: BridgeData = {
       url: r2Asset("landscape/kleringan 4.jpg"),
     },
   ],
-
-  documents: [
+documents: [
     {
       title: "Dokumen Teknis Jembatan Kleringan",
       type: "pdf",
-      url: r2Asset("Jembatan Kleringan.pdf"),
+      url: r2Asset("Jembatan Kleringan.pdf", "data"),
     },
     {
       title: "Data DWG Jembatan Kleringan",
       type: "zip",
-      url: r2Asset("jembatan_kleringan.zip"),
+      url: r2Asset("jembatan_kleringan.zip", "data"),
     },
+    {
+      title: "Peta Planimetris Jembatan Kleringan",
+      type: "pdf",
+      url: r2Asset("Peta Planimetris Jembatan Kewek.pdf", "data"),
+    },
+   {
+    title: "Data Kontur Jembatan Kleringan",
+    type: "zip",
+    url: r2Asset("kontur_kewek.zip", "data"),
+   },
   ],
 };

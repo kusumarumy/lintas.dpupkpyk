@@ -40,7 +40,7 @@ export interface BridgeData {
   name: string;
 
   identity: {
-    roadNumber: string;
+    roadNumber: string | null;
     roadName: string;
     village: string;
     district: string;

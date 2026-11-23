@@ -1,17 +1,10 @@
-
 "use client";
 
 import Header from "@/components/Header";
 import { getBridgeBySlug, getBridgeConditionLabel } from "@/data/bridges";
 import { getCesiumToken } from "@/lib/cesium";
 import type { BridgeData } from "@/data/bridges/types";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import type * as Cesium from "cesium";
 
@@ -43,9 +36,7 @@ let cesiumLoadPromise: Promise<typeof import("cesium")> | null = null;
 
 function loadCesiumRuntime(): Promise<typeof import("cesium")> {
   if (typeof window === "undefined") {
-    return Promise.reject(
-      new Error("Cesium hanya dapat dimuat di browser.")
-    );
+    return Promise.reject(new Error("Cesium hanya dapat dimuat di browser."));
   }
 
   // Lokasi seluruh aset runtime Cesium.
@@ -63,7 +54,7 @@ function loadCesiumRuntime(): Promise<typeof import("cesium")> {
 
   cesiumLoadPromise = new Promise((resolve, reject) => {
     let script = document.querySelector<HTMLScriptElement>(
-      'script[data-cesium-runtime="true"]'
+      'script[data-cesium-runtime="true"]',
     );
 
     const handleLoad = () => {
@@ -72,18 +63,14 @@ function loadCesiumRuntime(): Promise<typeof import("cesium")> {
       } else {
         reject(
           new Error(
-            "Cesium.js dimuat, tetapi objek window.Cesium tidak tersedia."
-          )
+            "Cesium.js dimuat, tetapi objek window.Cesium tidak tersedia.",
+          ),
         );
       }
     };
 
     const handleError = () => {
-      reject(
-        new Error(
-          "Gagal memuat runtime Cesium dari /cesium/Cesium.js."
-        )
-      );
+      reject(new Error("Gagal memuat runtime Cesium dari /cesium/Cesium.js."));
     };
 
     if (!script) {
@@ -136,7 +123,6 @@ function getConditionDescription(value: number | null) {
   return descriptions[value] ?? "Status kondisi belum diketahui.";
 }
 
-
 function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -181,7 +167,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
 
         if (!token) {
           throw new Error(
-            "Token Cesium Account A belum tersedia. Periksa konfigurasi environment."
+            "Token Cesium Account A belum tersedia. Periksa konfigurasi environment.",
           );
         }
 
@@ -190,7 +176,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
         // Terrain.
         const terrainProvider = bridge.model.terrainAssetId
           ? await CesiumRuntime.CesiumTerrainProvider.fromIonAssetId(
-              bridge.model.terrainAssetId
+              bridge.model.terrainAssetId,
             )
           : await CesiumRuntime.CesiumTerrainProvider.fromIonAssetId(1);
 
@@ -224,8 +210,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
 
         viewer.scene.fog.enabled = true;
 
-        viewer.scene.screenSpaceCameraController.enableCollisionDetection =
-          true;
+        viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
 
         viewer.scene.globe.baseColor =
           CesiumRuntime.Color.fromCssColorString("#dce5e8");
@@ -233,10 +218,9 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
         // Imagery.
         if (bridge.model.imageryAssetId) {
           try {
-            const imagery =
-              await CesiumRuntime.IonImageryProvider.fromAssetId(
-                bridge.model.imageryAssetId
-              );
+            const imagery = await CesiumRuntime.IonImageryProvider.fromAssetId(
+              bridge.model.imageryAssetId,
+            );
 
             if (cancelled) {
               if (!viewer.isDestroyed()) viewer.destroy();
@@ -246,10 +230,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
             viewer.imageryLayers.removeAll();
             viewer.imageryLayers.addImageryProvider(imagery);
           } catch (imageryError) {
-            console.warn(
-              "Imagery tidak berhasil dimuat:",
-              imageryError
-            );
+            console.warn("Imagery tidak berhasil dimuat:", imageryError);
           }
         }
 
@@ -257,7 +238,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
         if (bridge.model.mainAssetId) {
           const mainTileset =
             await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
-              bridge.model.mainAssetId
+              bridge.model.mainAssetId,
             );
 
           if (cancelled) {
@@ -272,10 +253,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
             offset: new CesiumRuntime.HeadingPitchRange(
               CesiumRuntime.Math.toRadians(0),
               CesiumRuntime.Math.toRadians(-25),
-              Math.max(
-                mainTileset.boundingSphere.radius * 2.8,
-                100
-              )
+              Math.max(mainTileset.boundingSphere.radius * 2.8, 100),
             ),
           });
         } else {
@@ -283,7 +261,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
             destination: CesiumRuntime.Cartesian3.fromDegrees(
               bridge.identity.longitude,
               bridge.identity.latitude,
-              800
+              800,
             ),
           });
         }
@@ -296,10 +274,9 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
         // Model area sekitar.
         if (bridge.model.areaAssetId) {
           try {
-            const area =
-              await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
-                bridge.model.areaAssetId
-              );
+            const area = await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
+              bridge.model.areaAssetId,
+            );
 
             if (cancelled) {
               if (!viewer.isDestroyed()) viewer.destroy();
@@ -311,20 +288,16 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
 
             tilesetsRef.current.area = area;
           } catch (areaError) {
-            console.warn(
-              "Model area tidak berhasil dimuat:",
-              areaError
-            );
+            console.warn("Model area tidak berhasil dimuat:", areaError);
           }
         }
 
         // Model sungai.
         if (bridge.model.riverAssetId) {
           try {
-            const river =
-              await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
-                bridge.model.riverAssetId
-              );
+            const river = await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
+              bridge.model.riverAssetId,
+            );
 
             if (cancelled) {
               if (!viewer.isDestroyed()) viewer.destroy();
@@ -336,10 +309,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
 
             tilesetsRef.current.river = river;
           } catch (riverError) {
-            console.warn(
-              "Model sungai tidak berhasil dimuat:",
-              riverError
-            );
+            console.warn("Model sungai tidak berhasil dimuat:", riverError);
           }
         }
 
@@ -360,7 +330,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
           setError(
             err instanceof Error
               ? err.message
-              : "Terjadi kesalahan saat memuat model 3D."
+              : "Terjadi kesalahan saat memuat model 3D.",
           );
 
           setLoading(false);
@@ -399,11 +369,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
     const viewer = viewerRef.current;
     const CesiumRuntime = cesiumModuleRef.current;
 
-    if (
-      !viewer ||
-      viewer.isDestroyed() ||
-      !CesiumRuntime
-    ) {
+    if (!viewer || viewer.isDestroyed() || !CesiumRuntime) {
       return;
     }
 
@@ -417,10 +383,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
         offset: new CesiumRuntime.HeadingPitchRange(
           CesiumRuntime.Math.toRadians(0),
           CesiumRuntime.Math.toRadians(-25),
-          Math.max(
-            mainTileset.boundingSphere.radius * 2.8,
-            100
-          )
+          Math.max(mainTileset.boundingSphere.radius * 2.8, 100),
         ),
       });
 
@@ -431,7 +394,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
       destination: CesiumRuntime.Cartesian3.fromDegrees(
         bridge.identity.longitude,
         bridge.identity.latitude,
-        800
+        800,
       ),
     });
   }, [bridge]);
@@ -460,16 +423,10 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
       setFullscreen(Boolean(document.fullscreenElement));
     };
 
-    document.addEventListener(
-      "fullscreenchange",
-      handleFullscreen
-    );
+    document.addEventListener("fullscreenchange", handleFullscreen);
 
     return () => {
-      document.removeEventListener(
-        "fullscreenchange",
-        handleFullscreen
-      );
+      document.removeEventListener("fullscreenchange", handleFullscreen);
     };
   }, []);
 
@@ -478,23 +435,15 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
       <div className="viewer-topbar">
         <div className="viewer-label">
           <span className="live-dot" />
-          <span>3D DIGITAL TWIN</span>
+          <span>3D VISUALIZATION</span>
         </div>
 
         <div className="viewer-actions">
-          <button
-            type="button"
-            onClick={resetCamera}
-            title="Reset kamera"
-          >
+          <button type="button" onClick={resetCamera} title="Reset kamera">
             <span>⌖</span> Reset View
           </button>
 
-          <button
-            type="button"
-            onClick={toggleFullscreen}
-            title="Fullscreen"
-          >
+          <button type="button" onClick={toggleFullscreen} title="Fullscreen">
             {fullscreen ? "Exit Fullscreen" : "Fullscreen"}
           </button>
         </div>
@@ -537,10 +486,8 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
       {loading && (
         <div className="viewer-loading">
           <div className="loading-spinner" />
-          <strong>Memuat Digital Twin</strong>
-          <span>
-            Menyiapkan terrain dan model 3D jembatan...
-          </span>
+          <strong>Memuat Visualisasi 3D</strong>
+          <span>Menyiapkan terrain dan model 3D jembatan...</span>
         </div>
       )}
 
@@ -549,10 +496,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
           <strong>Model 3D belum dapat ditampilkan</strong>
           <span>{error}</span>
 
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-          >
+          <button type="button" onClick={() => window.location.reload()}>
             Muat ulang halaman
           </button>
         </div>
@@ -566,11 +510,10 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
   );
 }
 
-
 function ConditionHistory({ bridge }: { bridge: BridgeData }) {
   const history = useMemo(
     () => [...bridge.history].sort((a, b) => a.year - b.year),
-    [bridge.history]
+    [bridge.history],
   );
 
   return (
@@ -648,9 +591,7 @@ export default function BridgeDetailPage() {
   const params = useParams<{ slug: string }>();
   const router = useRouter();
 
-  const slug = Array.isArray(params.slug)
-    ? params.slug[0]
-    : params.slug;
+  const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
 
   const bridge = getBridgeBySlug(slug);
 
@@ -668,10 +609,7 @@ export default function BridgeDetailPage() {
               Data jembatan dengan alamat tersebut belum tersedia dalam
               direktori LINTAS.
             </p>
-            <button
-              type="button"
-              onClick={() => router.push("/pemodelan-3d")}
-            >
+            <button type="button" onClick={() => router.push("/pemodelan-3d")}>
               Kembali ke Direktori Jembatan
             </button>
           </div>
@@ -688,10 +626,7 @@ export default function BridgeDetailPage() {
       <main className="bridge-detail-page">
         <div className="bridge-container">
           <div className="breadcrumb">
-            <button
-              type="button"
-              onClick={() => router.push("/pemodelan-3d")}
-            >
+            <button type="button" onClick={() => router.push("/pemodelan-3d")}>
               Direktori Jembatan
             </button>
             <span>/</span>
@@ -701,7 +636,7 @@ export default function BridgeDetailPage() {
           <section className="bridge-heading">
             <div>
               <div className="eyebrow">
-                LINTAS / DIGITAL TWIN INFRASTRUCTURE
+                3D VISUALIZATION OF BRIDGE INFRASTRUCTURE AND SURROUNDING AREA
               </div>
 
               <h1>{bridge.name}</h1>
@@ -717,11 +652,11 @@ export default function BridgeDetailPage() {
               className="condition-pill"
               style={{
                 backgroundColor: `${getConditionColor(
-                  bridge.currentCondition.score
+                  bridge.currentCondition.score,
                 )}18`,
                 color: getConditionColor(bridge.currentCondition.score),
                 borderColor: `${getConditionColor(
-                  bridge.currentCondition.score
+                  bridge.currentCondition.score,
                 )}55`,
               }}
             >
@@ -729,7 +664,7 @@ export default function BridgeDetailPage() {
                 className="condition-dot"
                 style={{
                   backgroundColor: getConditionColor(
-                    bridge.currentCondition.score
+                    bridge.currentCondition.score,
                   ),
                 }}
               />
@@ -740,9 +675,7 @@ export default function BridgeDetailPage() {
           <section className="bridge-kpis">
             <div className="kpi-card">
               <span className="kpi-label">TAHUN DIBANGUN</span>
-              <strong>
-                {bridge.identity.yearBuilt ?? "—"}
-              </strong>
+              <strong>{bridge.identity.yearBuilt ?? "—"}</strong>
               <span className="kpi-subtitle">Tahun pembangunan</span>
             </div>
 
@@ -789,7 +722,7 @@ export default function BridgeDetailPage() {
                 <span className="section-eyebrow">SPATIAL VISUALIZATION</span>
                 <h2>Model 3D Jembatan</h2>
                 <p>
-                  Visualisasi model tiga dimensi dan lingkungan sekitar
+                  Visualisasi model 3D Jembatan dan lingkungan sekitar
                   jembatan.
                 </p>
               </div>
@@ -818,9 +751,16 @@ export default function BridgeDetailPage() {
 
                 <div>
                   <span>Nama Ruas Jalan</span>
-                  <strong>{bridge.identity.roadName || "Belum tersedia"}</strong>
+                  <strong>
+                    {bridge.identity.roadName || "Belum tersedia"}
+                  </strong>
                 </div>
-
+                <div>
+                  <span>Nomor Ruas Jalan</span>
+                  <strong>
+                    {bridge.identity.roadNumber || "Belum tersedia"}
+                  </strong>
+                </div>
                 <div>
                   <span>Kelurahan</span>
                   <strong>{bridge.identity.village || "Belum tersedia"}</strong>
@@ -828,7 +768,9 @@ export default function BridgeDetailPage() {
 
                 <div>
                   <span>Kecamatan</span>
-                  <strong>{bridge.identity.district || "Belum tersedia"}</strong>
+                  <strong>
+                    {bridge.identity.district || "Belum tersedia"}
+                  </strong>
                 </div>
 
                 <div>
@@ -873,16 +815,12 @@ export default function BridgeDetailPage() {
               <div
                 className="condition-score"
                 style={{
-                  borderColor: getConditionColor(
-                    bridge.currentCondition.score
-                  ),
+                  borderColor: getConditionColor(bridge.currentCondition.score),
                 }}
               >
                 <strong
                   style={{
-                    color: getConditionColor(
-                      bridge.currentCondition.score
-                    ),
+                    color: getConditionColor(bridge.currentCondition.score),
                   }}
                 >
                   {bridge.currentCondition.score ?? "—"}
@@ -951,32 +889,55 @@ export default function BridgeDetailPage() {
 
               <div className="history-note">
                 <span>ⓘ</span>
-                Skor 0 menunjukkan kondisi baik, sedangkan skor 5
-                menunjukkan kondisi runtuh. Data yang tidak tersedia
-                tidak ditampilkan sebagai nilai.
+                Skor 0 menunjukkan kondisi baik, sedangkan skor 5 menunjukkan
+                kondisi runtuh. Data yang tidak tersedia tidak ditampilkan
+                sebagai nilai.
               </div>
             </div>
           </section>
+          <section className="detail-section">
+            <div className="section-heading">
+              <div>
+                <span className="section-eyebrow">RIVER ENVIRONMENT</span>
+                <h2>Kondisi Lingkungan Sungai</h2>
+                <p>
+                  Hasil penilaian kondisi aliran sungai di sekitar jembatan.
+                </p>
+              </div>
+              <span className="section-tag">RIVER ASSESSMENT</span>
+            </div>
 
+            <div className="detail-panel">
+              <div className="condition-info-row">
+                <span>Nilai Aliran Sungai</span>
+                <strong>1</strong>
+              </div>
+              <div className="condition-info-row">
+                <span>Kondisi Aliran Sungai</span>
+                <strong>Rusak Ringan</strong>
+              </div>
+            </div>
+          </section>
           <section className="detail-section">
             <div className="section-heading">
               <div>
                 <span className="section-eyebrow">STRUCTURAL COMPONENTS</span>
                 <h2>Evaluasi Komponen Jembatan</h2>
                 <p>
-                  Pengelompokan komponen struktur atas dan struktur bawah.
+                  Identifikasi dan penilaian komponen struktur bangunan atas dan
+                  struktur bangunan bawah.
                 </p>
               </div>
             </div>
 
             <div className="detail-grid component-grid">
               <ComponentList
-                title="Struktur Atas"
+                title="Struktur Bangunan Atas"
                 items={bridge.components.superstructure}
               />
 
               <ComponentList
-                title="Struktur Bawah"
+                title="Struktur Bangunan Bawah"
                 items={bridge.components.substructure}
               />
             </div>
@@ -1019,7 +980,7 @@ export default function BridgeDetailPage() {
                   {bridge.currentCondition.recommendations.map(
                     (item, index) => (
                       <li key={index}>{item}</li>
-                    )
+                    ),
                   )}
                 </ul>
               ) : (
@@ -1035,15 +996,10 @@ export default function BridgeDetailPage() {
               <div>
                 <span className="section-eyebrow">FIELD DOCUMENTATION</span>
                 <h2>Dokumentasi Foto</h2>
-                <p>
-                  Dokumentasi visual jembatan yang tersimpan pada Cloudflare
-                  R2.
-                </p>
+                <p>Dokumentasi visual Jembatan.</p>
               </div>
 
-              <span className="section-tag">
-                {bridge.photos.length} FOTO
-              </span>
+              <span className="section-tag">{bridge.photos.length} FOTO</span>
             </div>
 
             {bridge.photos.length > 0 ? (
@@ -1056,11 +1012,7 @@ export default function BridgeDetailPage() {
                     rel="noreferrer"
                     key={`${photo.url}-${index}`}
                   >
-                    <img
-                      src={photo.url}
-                      alt={photo.title}
-                      loading="lazy"
-                    />
+                    <img src={photo.url} alt={photo.title} loading="lazy" />
                     <div className="photo-caption">
                       <strong>{photo.title}</strong>
                       <span>↗</span>
@@ -1080,10 +1032,7 @@ export default function BridgeDetailPage() {
               <div>
                 <span className="section-eyebrow">TECHNICAL ARCHIVE</span>
                 <h2>Dokumen Teknis</h2>
-                <p>
-                  Berkas teknis dan data pendukung yang tersimpan pada
-                  Cloudflare R2.
-                </p>
+                <p>Berkas teknis dan data pendukung Jembatan.</p>
               </div>
             </div>
 
@@ -1105,9 +1054,7 @@ export default function BridgeDetailPage() {
 
                     <div className="document-info">
                       <strong>{document.title}</strong>
-                      <span>
-                        File {document.type.toUpperCase()}
-                      </span>
+                      <span>File {document.type.toUpperCase()}</span>
                     </div>
 
                     <span className="document-arrow">↗</span>
@@ -1115,9 +1062,7 @@ export default function BridgeDetailPage() {
                 ))}
               </div>
             ) : (
-              <div className="empty-panel">
-                Dokumen teknis belum tersedia.
-              </div>
+              <div className="empty-panel">Dokumen teknis belum tersedia.</div>
             )}
           </section>
 
@@ -1128,8 +1073,7 @@ export default function BridgeDetailPage() {
                   <span className="section-eyebrow">GROUND-LEVEL VIEW</span>
                   <h2>Street View</h2>
                   <p>
-                    Kondisi lingkungan jembatan dari perspektif permukaan
-                    jalan.
+                    Kondisi lingkungan jembatan dari perspektif permukaan jalan.
                   </p>
                 </div>
 
@@ -1151,15 +1095,10 @@ export default function BridgeDetailPage() {
           <footer className="bridge-footer">
             <div>
               <strong>LINTAS</strong>
-              <span>
-                Layanan Informasi Jembatan Kota Yogyakarta
-              </span>
+              <span>Layanan Informasi Jembatan Kota Yogyakarta</span>
             </div>
 
-            <button
-              type="button"
-              onClick={() => router.push("/pemodelan-3d")}
-            >
+            <button type="button" onClick={() => router.push("/pemodelan-3d")}>
               ← Kembali ke Direktori
             </button>
           </footer>
@@ -1843,7 +1782,9 @@ function BridgeStyles() {
         border: 1px solid #e4eaf0;
         border-radius: 11px;
         text-decoration: none;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
       }
 
       .photo-card:hover {
@@ -1888,7 +1829,9 @@ function BridgeStyles() {
         border: 1px solid #e5ebf0;
         border-radius: 10px;
         text-decoration: none;
-        transition: border-color 0.2s ease, transform 0.2s ease;
+        transition:
+          border-color 0.2s ease,
+          transform 0.2s ease;
       }
 
       .document-card:hover {

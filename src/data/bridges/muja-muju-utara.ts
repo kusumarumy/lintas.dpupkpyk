@@ -1,4 +1,4 @@
-import type { BridgeData } from "./types";
+﻿import type { BridgeData } from "./types";
 import { r2Asset } from "@/lib/assets";
 
 export const mujaMujuUtara: BridgeData = {
@@ -7,25 +7,25 @@ export const mujaMujuUtara: BridgeData = {
   name: "Jembatan Muja Muju Utara",
 
   identity: {
-    roadNumber: "",
+    roadNumber: "N_2003",
     roadName: "Jl. Kusumanegara (Sisi Barat) dan Jl. Kusumanegara (Sisi Timur)",
     village: "Muja Muju",
     district: "Umbulharjo",
     city: "Kota Yogyakarta",
     latitude: -7.8022028,
     longitude: 110.3975111,
-    latitudeText: `-7°48'7.93" LS`,
-    longitudeText: `110°23'51.04" BT`,
+    latitudeText: `-7Â°48'7.93" LS`,
+    longitudeText: `110Â°23'51.04" BT`,
     yearBuilt: 1979,
-    operationalStatus: "",
-    riverValue: null,
-    riverCondition: "",
+    operationalStatus: "Beroperasi",
+    riverValue: 1,
+    riverCondition: "Rusak Ringan",
   },
 
   dimensions: {
-    length: null,
-    width: null,
-    spans: null,
+    length: 47,
+    width: 7.4,
+    spans: 1,
   },
 
   history: [
@@ -39,7 +39,7 @@ export const mujaMujuUtara: BridgeData = {
   currentCondition: {
     score: 4,
     condition: "Kritis",
-    stability: "",
+    stability: "Tidak Mantap",
     handlingPlan: "Memerlukan Penanganan Segera",
     construction: "Struktur Baja Callender Hamilton",
     damage: [
@@ -56,14 +56,31 @@ export const mujaMujuUtara: BridgeData = {
 
   components: {
     superstructure: [
-      { name: "Struktur Atas", type: "", value: null },
-      { name: "Sistem Lantai", type: "", value: null },
-      { name: "Perlengkapan", type: "", value: null },
+      {
+        name: "Struktur Atas",
+        type: "Baja Callender Hamilton",
+        value: 4 },
+      {
+        name: "Sistem Lantai",
+        type: "Aspal",
+        value: 2 },
+      { name: "Perlengkapan (Sandaran, Railing, Pipa Cucuran)",
+        type: "Baja",
+        value: 1 },
     ],
     substructure: [
-      { name: "Abutmen/Pilar", type: "", value: null },
-      { name: "Pondasi", type: "", value: null },
-      { name: "Dinding Penahan", type: "", value: null },
+      {
+        name: "Abutmen/Pilar",
+        type: "Beton",
+        value: 2 },
+      {
+        name: "Pondasi",
+        type: "Beton",
+        value: 2 },
+      {
+        name: "Dinding Penahan",
+        type: "Pasangan Batu",
+        value: 1 },
     ],
   },
 
@@ -86,11 +103,22 @@ export const mujaMujuUtara: BridgeData = {
     { title: "Foto Jembatan Muja Muju Utara 3", url: r2Asset("landscape/mujamujuutara 3.jpg") },
     { title: "Foto Jembatan Muja Muju Utara 4", url: r2Asset("landscape/mujamujuutara 4.jpg") },
   ],
-
   documents: [
-    { title: "Dokumen Teknis Rangka Baja Jembatan Sisi Utara", type: "pdf", url: r2Asset("Jembatan Rangka Baja Muja Muju Sisi Utara.pdf") },
-    { title: "Data DWG Jembatan Muja Muju Utara", type: "zip", url: r2Asset("jembatan_mujamuju_utara.zip") },
-    { title: "Peta Planimetris Jembatan Muja-Muju", type: "pdf", url: r2Asset("Peta Planimetris Jembatan Muja-Muju.pdf") },
-    { title: "Data Kontur Jembatan Muja-Muju", type: "zip", url: r2Asset("kontur_mujamuju.zip") },
+    {
+      title: "Dokumen Teknis Rangka Baja Jembatan Sisi Utara",
+      type: "pdf",
+      url: r2Asset("Jembatan Rangka Baja Muja Muju Sisi Utara.pdf", "data") },
+    {
+      title: "Data DWG Jembatan Muja Muju Utara",
+      type: "zip",
+      url: r2Asset("jembatan_mujamuju_utara.zip", "data") },
+    {
+      title: "Peta Planimetris Jembatan Muja-Muju",
+      type: "pdf",
+      url: r2Asset("Peta Planimetris Jembatan Muja-Muju.pdf", "data") },
+    {
+      title: "Data Kontur Jembatan Muja-Muju",
+      type: "zip",
+      url: r2Asset("kontur_mujamuju.zip", "data") },
   ],
 };

@@ -7,7 +7,7 @@ export const kewek: BridgeData = {
   name: "Jembatan Kewek",
 
   identity: {
-    roadNumber: "",
+    roadNumber: "N_1038",
     roadName:
       "Jl. Abu Bakar Ali (Sisi Barat) dan Jl. Abu Bakar Ali (Sisi Utara)",
 
@@ -22,16 +22,16 @@ export const kewek: BridgeData = {
     longitudeText: `110°22'7.37" BT`,
 
     yearBuilt: 1924,
-    operationalStatus: "Beroperasi",
+    operationalStatus: "Tidak Beroperasi",
 
-    riverValue: null,
-    riverCondition: "",
+    riverValue: 1,
+    riverCondition: "Rusak Ringan",
   },
 
   dimensions: {
-    length: null,
-    width: null,
-    spans: null,
+    length: 19.7 ,
+    width: 12.5,
+    spans: 1,
   },
 
   history: [
@@ -63,10 +63,10 @@ export const kewek: BridgeData = {
   ],
 
   currentCondition: {
-    score: null,
-    condition: "",
-    stability: "",
-    handlingPlan: "",
+    score: 4,
+    condition: "Kritis",
+    stability: "Tidak Mantap",
+    handlingPlan: "Memerlukan Penanganan Segera",
 
     construction: "Balok T",
 
@@ -87,36 +87,36 @@ export const kewek: BridgeData = {
     superstructure: [
       {
         name: "Struktur Atas",
-        type: "",
-        value: null,
+        type: "Balok T",
+        value: 4,
       },
       {
         name: "Sistem Lantai",
-        type: "",
-        value: null,
+        type: "Aspal",
+        value: 1,
       },
       {
-        name: "Perlengkapan",
-        type: "",
-        value: null,
+        name: "Perlengkapan (Sandaran, Railing, Pipa Cucuran)",
+        type: "Beton",
+        value: 0,
       },
     ],
 
     substructure: [
       {
         name: "Abutmen/Pilar",
-        type: "",
-        value: null,
+        type: "Beton Bertulang",
+        value: 0,
       },
       {
         name: "Pondasi",
-        type: "",
-        value: null,
+        type: "Pasangan Batu",
+        value: 2,
       },
       {
         name: "Dinding Penahan",
-        type: "",
-        value: null,
+        type: "Pasangan Batu",
+        value: 3,
       },
     ],
   },
@@ -146,10 +146,18 @@ export const kewek: BridgeData = {
   photos: [
   {
     title: "Foto Jembatan Kewek 1",
-    url: r2Asset("landscape/kewek 3.jpg"),
+    url: r2Asset("landscape/kewek 1.jpg"),
   },
   {
     title: "Foto Jembatan Kewek 2",
+    url: r2Asset("landscape/kewek 2.jpg"),
+  },
+  {
+    title: "Foto Jembatan Kewek 3",
+    url: r2Asset("landscape/kewek 3.jpg"),
+  },
+  {
+    title: "Foto Jembatan Kewek 4",
     url: r2Asset("landscape/kewek 4.jpg"),
   },
 ],
@@ -158,22 +166,22 @@ documents: [
   {
     title: "Dokumen Teknis Jembatan Kewek",
     type: "pdf",
-    url: r2Asset("Jembatan Kewek.pdf"),
+    url: r2Asset("Jembatan Kewek.pdf", "data"),
   },
   {
     title: "Data DWG Jembatan Kewek",
     type: "zip",
-    url: r2Asset("jembatan_kewek.zip"),
+    url: r2Asset("jembatan_kewek.zip", "data"),
   },
   {
     title: "Peta Planimetris Jembatan Kewek",
     type: "pdf",
-    url: r2Asset("Peta Planimetris Jembatan Kewek.pdf"),
+    url: r2Asset("Peta Planimetris Jembatan Kewek.pdf", "data"),
   },
   {
     title: "Data Kontur Jembatan Kewek",
     type: "zip",
-    url: r2Asset("kontur_kewek.zip"),
+    url: r2Asset("kontur_kewek.zip", "data"),
   },
 ],
 };

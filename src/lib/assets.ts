@@ -1,6 +1,12 @@
+export function r2Asset(
+  filename: string,
+  folder: "assets" | "data" = "assets"
+): string {
+  const encodedPath = [folder, ...filename.split("/")]
+    .map(encodeURIComponent)
+    .join("/");
 
-export function r2Asset(filename: string): string {
-  return `/api/r2/assets/${encodeURIComponent(filename)}`;
+  return `/api/r2/${encodedPath}`;
 }
 
 export const LINTAS_ASSETS = {

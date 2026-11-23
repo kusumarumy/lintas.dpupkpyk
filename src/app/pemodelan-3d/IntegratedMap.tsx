@@ -230,7 +230,7 @@ export default function IntegratedMap({
     <div
       ref={containerRef}
       className="dt-cesium-container"
-      aria-label="Peta digital twin infrastruktur"
+      aria-label="Visualisasi 3D Infrastruktur Jembatan"
     />
   );
 }

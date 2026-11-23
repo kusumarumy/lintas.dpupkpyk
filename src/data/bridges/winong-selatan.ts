@@ -7,7 +7,7 @@ export const winongSelatan: BridgeData = {
   name: "Jembatan Winong Selatan",
 
   identity: {
-    roadNumber: "",
+    roadNumber: "N_2133",
     roadName: "Jl. Perintis Kemerdekaan (Sisi Barat) dan Jl. Ngeksigondo (Sisi Timur)",
     village: "Pandeyan",
     district: "Umbulharjo",
@@ -17,9 +17,9 @@ export const winongSelatan: BridgeData = {
     latitudeText: `-7°49'8.30" LS`,
     longitudeText: `110°23'40.43" BT`,
     yearBuilt: 1984,
-    operationalStatus: "",
-    riverValue: null,
-    riverCondition: "",
+    operationalStatus: "Beroperasi",
+    riverValue: 1,
+    riverCondition: "Rusak Ringan",
   },
 
   dimensions: {
@@ -39,7 +39,7 @@ export const winongSelatan: BridgeData = {
   currentCondition: {
     score: 3,
     condition: "Rusak Berat",
-    stability: "",
+    stability: "Tidak Mantap",
     handlingPlan: "Memerlukan Perbaikan Secepatnya Dalam 1 Tahun",
     construction: "Baja Komposit",
     damage: [
@@ -54,14 +54,14 @@ export const winongSelatan: BridgeData = {
 
   components: {
     superstructure: [
-      { name: "Struktur Atas", type: "", value: null },
-      { name: "Sistem Lantai", type: "", value: null },
-      { name: "Perlengkapan", type: "", value: null },
+      { name: "Struktur Atas", type: "Baja Komposit", value: 3 },
+      { name: "Sistem Lantai", type: "Aspal", value: 2 },
+      { name: "Perlengkapan (Sandaran, Railing, Pipa Cucuran)", type: "Beton dan Pasangan Batu", value: 1 },
     ],
     substructure: [
-      { name: "Abutmen/Pilar", type: "", value: null },
-      { name: "Pondasi", type: "", value: null },
-      { name: "Dinding Penahan", type: "", value: null },
+      { name: "Abutmen/Pilar", type: "Beton Bertulang", value: 0 },
+      { name: "Pondasi", type: "Beton", value: 0 },
+      { name: "Dinding Penahan", type: "Pasangan Batu", value: 0 },
     ],
   },
 
@@ -86,9 +86,9 @@ export const winongSelatan: BridgeData = {
   ],
 
   documents: [
-    { title: "Dokumen Teknis Jembatan Sisi Selatan", type: "pdf", url: r2Asset("Jembatan Perintis Kemerdekaan Sisi Selatan.pdf") },
-    { title: "Data DWG Jembatan Winong Selatan", type: "zip", url: r2Asset("jembatan_winong_selatan.zip") },
-    { title: "Peta Planimetris Jembatan Winong", type: "pdf", url: r2Asset("Peta Planimetris Jembatan Winong.pdf") },
-    { title: "Data Kontur Jembatan Winong", type: "zip", url: r2Asset("kontur_kemerdekaan.zip") },
+    { title: "Dokumen Teknis Jembatan Sisi Selatan", type: "pdf", url: r2Asset("Jembatan Perintis Kemerdekaan Sisi Selatan.pdf", "data") },
+    { title: "Data DWG Jembatan Winong Selatan", type: "zip", url: r2Asset("jembatan_winong_selatan.zip", "data") },
+    { title: "Peta Planimetris Jembatan Winong", type: "pdf", url: r2Asset("Peta Planimetris Jembatan Winong.pdf", "data") },
+    { title: "Data Kontur Jembatan Winong", type: "zip", url: r2Asset("kontur_kemerdekaan.zip", "data") },
   ],
 };

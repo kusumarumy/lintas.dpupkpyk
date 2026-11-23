@@ -289,7 +289,7 @@ export default function Pemodelan3DPage() {
             <div className="hero-main">
               <div className="hero-text">
                 <h1>
-                  Digital Twin
+                  3D Visualization<br />
                   <br />
                   <span>Infrastruktur Jembatan</span>
                 </h1>
@@ -337,7 +337,7 @@ export default function Pemodelan3DPage() {
 
                   <div className="hero-floating-tag tag-bottom">
                     <span>3D</span>
-                    DIGITAL TWIN
+                    VISUALIZATION
                   </div>
 
                   <div className="hero-coordinate-label">
