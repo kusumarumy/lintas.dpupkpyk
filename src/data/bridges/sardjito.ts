@@ -1,5 +1,5 @@
-
 import type { BridgeData } from "./types";
+import { r2Asset } from "@/lib/assets";
 
 export const sardjito: BridgeData = {
   id: null,
@@ -9,8 +9,6 @@ export const sardjito: BridgeData = {
   identity: {
     roadNumber: "",
     roadName: "Jembatan Sardjito",
-
-    // Perlu dilengkapi berdasarkan data administrasi
     village: "Belum diisi",
     district: "Belum diisi",
     city: "Kota Yogyakarta",
@@ -19,12 +17,11 @@ export const sardjito: BridgeData = {
     latitude: -7.7784538073,
     longitude: 110.3705295862,
 
-    latitudeText: `7°46'42.43" LS`,
+    latitudeText: `-7°46'42.43" LS`,
     longitudeText: `110°22'13.91" BT`,
 
     yearBuilt: null,
     operationalStatus: "",
-
     riverValue: null,
     riverCondition: "",
   },
@@ -43,7 +40,6 @@ export const sardjito: BridgeData = {
     stability: "",
     handlingPlan: "",
     construction: "",
-
     damage: [],
     recommendations: [],
   },
@@ -61,7 +57,7 @@ export const sardjito: BridgeData = {
         value: null,
       },
       {
-        name: "Perlengkapan",
+        name: "Perlengkapan (Sandaran, Railing, Pipa Cucuran)",
         type: "",
         value: null,
       },
@@ -90,7 +86,14 @@ export const sardjito: BridgeData = {
     mainAssetId: 6194239,
   },
 
-  photos: [],
+  photos: [
+    {
+    title: "Foto Jembatan Sardjito 1",
+    url: r2Asset("landscape/sardjito.jpg"),
+  },
+  ],
 
-  documents: [],
+  documents: [
+    // Tambahkan dokumen teknis Sardjito dari Cloudflare R2 di sini
+  ],
 };
