@@ -8,7 +8,7 @@ import { winongSelatan } from "./winong-selatan";
 import { winongUtara } from "./winong-utara";
 import { sardjito } from "./sardjito";
 import { tamansariBaru } from "./tamansari-baru";
-import { tamansariBaru } from "./serangan";
+import { serangan } from "./serangan";
 
 export const bridges: BridgeData[] = [
   kewek,
