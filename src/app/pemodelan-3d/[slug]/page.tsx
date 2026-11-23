@@ -123,35 +123,91 @@ function getConditionDescription(value: number | null) {
   return descriptions[value] ?? "Status kondisi belum diketahui.";
 }
 
+function getCurrentWibMinutes() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Jakarta",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date());
+
+  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? 0);
+  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? 0);
+
+  return hour * 60 + minute;
+}
+
+function getWibJulianDate(
+  CesiumRuntime: typeof import("cesium"),
+  minutes: number,
+) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+
+  const year = Number(parts.find((p) => p.type === "year")?.value);
+  const month = Number(parts.find((p) => p.type === "month")?.value);
+  const day = Number(parts.find((p) => p.type === "day")?.value);
+
+  const hour = Math.floor(minutes / 60);
+  const minute = minutes % 60;
+
+  // WIB = UTC + 7 jam.
+  const date = new Date(
+    Date.UTC(year, month - 1, day, hour - 7, minute),
+  );
+
+  return CesiumRuntime.JulianDate.fromDate(date);
+}
+
+function formatWibTime(minutes: number) {
+  const hour = Math.floor(minutes / 60);
+  const minute = minutes % 60;
+
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
+
 function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-
   const viewerRef = useRef<Cesium.Viewer | null>(null);
-
   const cesiumModuleRef = useRef<typeof import("cesium") | null>(null);
 
   const tilesetsRef = useRef<{
+    main?: Cesium.Cesium3DTileset;
     area?: Cesium.Cesium3DTileset;
     river?: Cesium.Cesium3DTileset;
   }>({});
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [fullscreen, setFullscreen] = useState(false);
 
-  const [layers, setLayers] = useState<CesiumLayerState>({
+  const [layers, setLayers] = useState({
     area: true,
     river: true,
   });
 
-  const [fullscreen, setFullscreen] = useState(false);
+  const [timeMinutes, setTimeMinutes] = useState(
+    getCurrentWibMinutes,
+  );
 
+  const [liveTime, setLiveTime] = useState(true);
+  const [lighting, setLighting] = useState(true);
+  const [shadows, setShadows] = useState(true);
+  const [atmosphere, setAtmosphere] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(true);
+
+  // Inisialisasi Cesium.
   useEffect(() => {
     let cancelled = false;
+    let localViewer: Cesium.Viewer | null = null;
 
     async function initializeCesium() {
       if (!containerRef.current) return;
-
-      let viewer: Cesium.Viewer | null = null;
 
       try {
         setLoading(true);
@@ -167,13 +223,13 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
 
         if (!token) {
           throw new Error(
-            "Token Cesium Account A belum tersedia. Periksa konfigurasi environment.",
+            "Token Cesium Account A belum tersedia.",
           );
         }
 
         CesiumRuntime.Ion.defaultAccessToken = token;
 
-        // Terrain.
+        // Terrain tetap menggunakan asset Kewek.
         const terrainProvider = bridge.model.terrainAssetId
           ? await CesiumRuntime.CesiumTerrainProvider.fromIonAssetId(
               bridge.model.terrainAssetId,
@@ -182,78 +238,104 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
 
         if (cancelled || !containerRef.current) return;
 
-        // Inisialisasi Viewer.
-        viewer = new CesiumRuntime.Viewer(containerRef.current, {
-          animation: false,
-          timeline: false,
-          geocoder: false,
-          homeButton: false,
-          sceneModePicker: false,
-          navigationHelpButton: false,
-          baseLayerPicker: false,
-          fullscreenButton: false,
-          infoBox: false,
-          selectionIndicator: false,
-          scene3DOnly: true,
-          shouldAnimate: true,
-          terrainProvider,
-        });
+        const viewer = new CesiumRuntime.Viewer(
+          containerRef.current,
+          {
+            animation: false,
+            timeline: false,
+            geocoder: false,
+            homeButton: false,
+            sceneModePicker: false,
+            navigationHelpButton: false,
+            baseLayerPicker: false,
+            fullscreenButton: false,
+            infoBox: false,
+            selectionIndicator: false,
+            scene3DOnly: true,
+            shouldAnimate: false,
 
+            terrainProvider,
+
+            // Mengaktifkan bayangan matahari.
+            shadows: true,
+
+            // Terrain menerima bayangan.
+            terrainShadows:
+              CesiumRuntime.ShadowMode.RECEIVE_ONLY,
+          },
+        );
+
+        localViewer = viewer;
         viewerRef.current = viewer;
 
+        // Pencahayaan permukaan bumi.
         viewer.scene.globe.enableLighting = true;
+
         viewer.scene.globe.depthTestAgainstTerrain = false;
 
+        viewer.scene.globe.baseColor =
+          CesiumRuntime.Color.fromCssColorString("#dce5e8");
+
+        // Atmosfer.
         if (viewer.scene.skyAtmosphere) {
           viewer.scene.skyAtmosphere.show = true;
         }
 
         viewer.scene.fog.enabled = true;
 
-        viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
+        viewer.scene.screenSpaceCameraController
+          .enableCollisionDetection = true;
 
-        viewer.scene.globe.baseColor =
-          CesiumRuntime.Color.fromCssColorString("#dce5e8");
+        // Atur waktu awal berdasarkan WIB.
+        viewer.clock.currentTime = getWibJulianDate(
+          CesiumRuntime,
+          timeMinutes,
+        );
+
+        viewer.clock.shouldAnimate = false;
 
         // Imagery.
         if (bridge.model.imageryAssetId) {
           try {
-            const imagery = await CesiumRuntime.IonImageryProvider.fromAssetId(
-              bridge.model.imageryAssetId,
-            );
+            const imagery =
+              await CesiumRuntime.IonImageryProvider.fromAssetId(
+                bridge.model.imageryAssetId,
+              );
 
-            if (cancelled) {
-              if (!viewer.isDestroyed()) viewer.destroy();
-              return;
-            }
+            if (cancelled) return;
 
             viewer.imageryLayers.removeAll();
             viewer.imageryLayers.addImageryProvider(imagery);
-          } catch (imageryError) {
-            console.warn("Imagery tidak berhasil dimuat:", imageryError);
+          } catch (err) {
+            console.warn("Imagery gagal dimuat:", err);
           }
         }
 
-        // Model utama jembatan.
+        // Model utama.
         if (bridge.model.mainAssetId) {
           const mainTileset =
             await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
               bridge.model.mainAssetId,
             );
 
-          if (cancelled) {
-            if (!viewer.isDestroyed()) viewer.destroy();
-            return;
-          }
+          if (cancelled) return;
+
+          mainTileset.shadows =
+            CesiumRuntime.ShadowMode.ENABLED;
 
           viewer.scene.primitives.add(mainTileset);
+
+          tilesetsRef.current.main = mainTileset;
 
           await viewer.flyTo(mainTileset, {
             duration: 2,
             offset: new CesiumRuntime.HeadingPitchRange(
               CesiumRuntime.Math.toRadians(0),
               CesiumRuntime.Math.toRadians(-25),
-              Math.max(mainTileset.boundingSphere.radius * 2.8, 100),
+              Math.max(
+                mainTileset.boundingSphere.radius * 2.8,
+                100,
+              ),
             ),
           });
         } else {
@@ -266,52 +348,49 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
           });
         }
 
-        if (cancelled) {
-          if (!viewer.isDestroyed()) viewer.destroy();
-          return;
-        }
+        if (cancelled) return;
 
         // Model area sekitar.
         if (bridge.model.areaAssetId) {
           try {
-            const area = await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
-              bridge.model.areaAssetId,
-            );
+            const area =
+              await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
+                bridge.model.areaAssetId,
+              );
 
-            if (cancelled) {
-              if (!viewer.isDestroyed()) viewer.destroy();
-              return;
-            }
+            if (cancelled) return;
+
+            area.show = layers.area;
+            area.shadows = CesiumRuntime.ShadowMode.ENABLED;
 
             viewer.scene.primitives.add(area);
-            area.show = layers.area;
-
             tilesetsRef.current.area = area;
-          } catch (areaError) {
-            console.warn("Model area tidak berhasil dimuat:", areaError);
+          } catch (err) {
+            console.warn("Model area gagal dimuat:", err);
           }
         }
 
         // Model sungai.
         if (bridge.model.riverAssetId) {
           try {
-            const river = await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
-              bridge.model.riverAssetId,
-            );
+            const river =
+              await CesiumRuntime.Cesium3DTileset.fromIonAssetId(
+                bridge.model.riverAssetId,
+              );
 
-            if (cancelled) {
-              if (!viewer.isDestroyed()) viewer.destroy();
-              return;
-            }
+            if (cancelled) return;
+
+            river.show = layers.river;
+            river.shadows = CesiumRuntime.ShadowMode.ENABLED;
 
             viewer.scene.primitives.add(river);
-            river.show = layers.river;
-
             tilesetsRef.current.river = river;
-          } catch (riverError) {
-            console.warn("Model sungai tidak berhasil dimuat:", riverError);
+          } catch (err) {
+            console.warn("Model sungai gagal dimuat:", err);
           }
         }
+
+        viewer.scene.requestRender();
 
         if (!cancelled) {
           setLoading(false);
@@ -319,8 +398,8 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
       } catch (err) {
         console.error("Cesium initialization error:", err);
 
-        if (viewer && !viewer.isDestroyed()) {
-          viewer.destroy();
+        if (localViewer && !localViewer.isDestroyed()) {
+          localViewer.destroy();
         }
 
         if (!cancelled) {
@@ -330,7 +409,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
           setError(
             err instanceof Error
               ? err.message
-              : "Terjadi kesalahan saat memuat model 3D.",
+              : "Gagal memuat model 3D.",
           );
 
           setLoading(false);
@@ -343,15 +422,83 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
     return () => {
       cancelled = true;
 
-      if (viewerRef.current && !viewerRef.current.isDestroyed()) {
-        viewerRef.current.destroy();
+      if (localViewer && !localViewer.isDestroyed()) {
+        localViewer.destroy();
       }
 
-      viewerRef.current = null;
+      if (viewerRef.current === localViewer) {
+        viewerRef.current = null;
+      }
+
       cesiumModuleRef.current = null;
       tilesetsRef.current = {};
     };
   }, [bridge]);
+
+  // Mengikuti waktu WIB saat mode Live aktif.
+  useEffect(() => {
+    if (!liveTime) return;
+
+    const updateTime = () => {
+      setTimeMinutes(getCurrentWibMinutes());
+    };
+
+    updateTime();
+
+    const interval = window.setInterval(updateTime, 30000);
+
+    return () => window.clearInterval(interval);
+  }, [liveTime]);
+
+  // Menerapkan posisi matahari sesuai waktu.
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    const CesiumRuntime = cesiumModuleRef.current;
+
+    if (!viewer || viewer.isDestroyed() || !CesiumRuntime) {
+      return;
+    }
+
+    viewer.clock.currentTime = getWibJulianDate(
+      CesiumRuntime,
+      timeMinutes,
+    );
+
+    viewer.clock.shouldAnimate = false;
+    viewer.scene.requestRender();
+  }, [timeMinutes, loading]);
+
+  // Kontrol pencahayaan dan bayangan.
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    const CesiumRuntime = cesiumModuleRef.current;
+
+    if (!viewer || viewer.isDestroyed() || !CesiumRuntime) {
+      return;
+    }
+
+    viewer.scene.globe.enableLighting = lighting;
+
+    viewer.shadows = shadows;
+
+    viewer.terrainShadows = shadows
+      ? CesiumRuntime.ShadowMode.RECEIVE_ONLY
+      : CesiumRuntime.ShadowMode.DISABLED;
+
+    const shadowMode = shadows
+      ? CesiumRuntime.ShadowMode.ENABLED
+      : CesiumRuntime.ShadowMode.DISABLED;
+
+    Object.values(tilesetsRef.current).forEach((tileset) => {
+      if (tileset) tileset.shadows = shadowMode;
+    });
+
+    if (viewer.scene.skyAtmosphere) {
+      viewer.scene.skyAtmosphere.show = atmosphere;
+    }
+
+    viewer.scene.requestRender();
+  }, [lighting, shadows, atmosphere, loading]);
 
   // Kontrol layer.
   useEffect(() => {
@@ -362,7 +509,20 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
     if (tilesetsRef.current.river) {
       tilesetsRef.current.river.show = layers.river;
     }
+
+    viewerRef.current?.scene.requestRender();
   }, [layers]);
+
+  // Preset waktu.
+  const selectTime = useCallback((hour: number) => {
+    setLiveTime(false);
+    setTimeMinutes(hour * 60);
+  }, []);
+
+  const resetLiveTime = useCallback(() => {
+    setLiveTime(true);
+    setTimeMinutes(getCurrentWibMinutes());
+  }, []);
 
   // Reset kamera.
   const resetCamera = useCallback(() => {
@@ -373,17 +533,18 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
       return;
     }
 
-    const mainTileset = bridge.model.mainAssetId
-      ? (viewer.scene.primitives.get(0) as Cesium.Cesium3DTileset)
-      : undefined;
+    const mainTileset = tilesetsRef.current.main;
 
-    if (mainTileset?.boundingSphere) {
+    if (mainTileset) {
       viewer.flyTo(mainTileset, {
         duration: 1.5,
         offset: new CesiumRuntime.HeadingPitchRange(
           CesiumRuntime.Math.toRadians(0),
           CesiumRuntime.Math.toRadians(-25),
-          Math.max(mainTileset.boundingSphere.radius * 2.8, 100),
+          Math.max(
+            mainTileset.boundingSphere.radius * 2.8,
+            100,
+          ),
         ),
       });
 
@@ -408,10 +569,8 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
     try {
       if (!document.fullscreenElement) {
         await element.requestFullscreen();
-        setFullscreen(true);
       } else {
         await document.exitFullscreen();
-        setFullscreen(false);
       }
     } catch (err) {
       console.error("Fullscreen error:", err);
@@ -426,9 +585,19 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
     document.addEventListener("fullscreenchange", handleFullscreen);
 
     return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreen);
+      document.removeEventListener(
+        "fullscreenchange",
+        handleFullscreen,
+      );
     };
   }, []);
+
+  const toggleLayer = (key: "area" | "river") => {
+    setLayers((previous) => ({
+      ...previous,
+      [key]: !previous[key],
+    }));
+  };
 
   return (
     <div className="viewer-shell">
@@ -439,11 +608,11 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
         </div>
 
         <div className="viewer-actions">
-          <button type="button" onClick={resetCamera} title="Reset kamera">
-            <span>⌖</span> Reset View
+          <button type="button" onClick={resetCamera}>
+            ⌖ Reset View
           </button>
 
-          <button type="button" onClick={toggleFullscreen} title="Fullscreen">
+          <button type="button" onClick={toggleFullscreen}>
             {fullscreen ? "Exit Fullscreen" : "Fullscreen"}
           </button>
         </div>
@@ -451,43 +620,174 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
 
       <div className="cesium-map" ref={containerRef} />
 
-      <div className="viewer-layer-panel">
-        <div className="layer-panel-title">Layer Model</div>
+      {/* Panel Environment */}
+      <aside className={`viewer-control-panel ${panelOpen ? "" : "collapsed"}`}>
+        <div className="control-panel-header">
+          <div>
+            <span className="control-eyebrow">LINTAS ENVIRONMENT</span>
+            <strong>3D Environment</strong>
+          </div>
 
-        <label>
-          <input
-            type="checkbox"
-            checked={layers.area}
-            onChange={(event) =>
-              setLayers((previous) => ({
-                ...previous,
-                area: event.target.checked,
-              }))
-            }
-          />
-          Area sekitar
-        </label>
+          <button
+            type="button"
+            onClick={() => setPanelOpen(!panelOpen)}
+            title="Tampilkan/sembunyikan panel"
+          >
+            {panelOpen ? "×" : "‹"}
+          </button>
+        </div>
 
-        <label>
-          <input
-            type="checkbox"
-            checked={layers.river}
-            onChange={(event) =>
-              setLayers((previous) => ({
-                ...previous,
-                river: event.target.checked,
-              }))
-            }
-          />
-          Sungai
-        </label>
-      </div>
+        {panelOpen && (
+          <>
+            {/* Sunlight */}
+            <section className="control-section">
+              <div className="control-section-title">
+                <span>☀</span>
+                <strong>Sunlight & Shadows</strong>
+              </div>
+
+              <div className="control-time">
+                <strong>{formatWibTime(timeMinutes)}</strong>
+                <span>WIB · Yogyakarta</span>
+              </div>
+
+              <div className="time-slider">
+                <input
+                  type="range"
+                  min={0}
+                  max={1439}
+                  step={5}
+                  value={timeMinutes}
+                  onChange={(event) => {
+                    setLiveTime(false);
+                    setTimeMinutes(Number(event.target.value));
+                  }}
+                />
+
+                <div className="time-scale">
+                  <span>00</span>
+                  <span>06</span>
+                  <span>12</span>
+                  <span>18</span>
+                  <span>24</span>
+                </div>
+              </div>
+
+              <div className="time-presets">
+                {[
+                  { label: "Dawn", hour: 6 },
+                  { label: "Noon", hour: 12 },
+                  { label: "Golden", hour: 17 },
+                  { label: "Night", hour: 20 },
+                ].map((preset) => (
+                  <button
+                    type="button"
+                    key={preset.label}
+                    className={
+                      timeMinutes === preset.hour * 60
+                        ? "active"
+                        : ""
+                    }
+                    onClick={() => selectTime(preset.hour)}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                className={`live-time-button ${liveTime ? "active" : ""}`}
+                onClick={resetLiveTime}
+              >
+                ● {liveTime ? "Live WIB" : "Kembali ke waktu sekarang"}
+              </button>
+            </section>
+
+            {/* Lighting */}
+            <section className="control-section">
+              <div className="control-section-title">
+                <span>◐</span>
+                <strong>Lighting Settings</strong>
+              </div>
+
+              <label className="environment-toggle">
+                <span>
+                  <strong>Terrain Lighting</strong>
+                  <small>Pencahayaan permukaan bumi</small>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={lighting}
+                  onChange={(e) => setLighting(e.target.checked)}
+                />
+              </label>
+
+              <label className="environment-toggle">
+                <span>
+                  <strong>3D Shadows</strong>
+                  <small>Bayangan model dan terrain</small>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={shadows}
+                  onChange={(e) => setShadows(e.target.checked)}
+                />
+              </label>
+
+              <label className="environment-toggle">
+                <span>
+                  <strong>Atmosphere</strong>
+                  <small>Atmosfer dan cahaya langit</small>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={atmosphere}
+                  onChange={(e) => setAtmosphere(e.target.checked)}
+                />
+              </label>
+            </section>
+
+            {/* Layers */}
+            <section className="control-section">
+              <div className="control-section-title">
+                <span>▤</span>
+                <strong>3D Layers</strong>
+              </div>
+
+              <label className="environment-toggle">
+                <span>
+                  <strong>Area Sekitar</strong>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={layers.area}
+                  onChange={() => toggleLayer("area")}
+                />
+              </label>
+
+              <label className="environment-toggle">
+                <span>
+                  <strong>Sungai</strong>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={layers.river}
+                  onChange={() => toggleLayer("river")}
+                />
+              </label>
+            </section>
+          </>
+        )}
+      </aside>
 
       {loading && (
         <div className="viewer-loading">
           <div className="loading-spinner" />
           <strong>Memuat Visualisasi 3D</strong>
-          <span>Menyiapkan terrain dan model 3D jembatan...</span>
+          <span>
+            Menyiapkan terrain dan model 3D jembatan...
+          </span>
         </div>
       )}
 
@@ -496,7 +796,10 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
           <strong>Model 3D belum dapat ditampilkan</strong>
           <span>{error}</span>
 
-          <button type="button" onClick={() => window.location.reload()}>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+          >
             Muat ulang halaman
           </button>
         </div>
@@ -509,6 +812,7 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
     </div>
   );
 }
+
 
 function ConditionHistory({ bridge }: { bridge: BridgeData }) {
   const history = useMemo(
@@ -2107,6 +2411,269 @@ function BridgeStyles() {
           flex-direction: column;
         }
       }
+      
+/* =========================================
+   LINTAS - 3D ENVIRONMENT CONTROL PANEL
+   ========================================= */
+
+.viewer-control-panel {
+  position: absolute;
+  z-index: 8;
+  top: 76px;
+  right: 17px;
+  bottom: 48px;
+  width: 320px;
+  max-height: calc(100% - 135px);
+  overflow-y: auto;
+  padding: 17px;
+  color: #f4f5f2;
+  background: rgba(31, 32, 29, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.32);
+}
+
+.viewer-control-panel.collapsed {
+  bottom: auto;
+  width: auto;
+  padding: 10px;
+}
+
+.control-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.control-panel-header > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.control-eyebrow {
+  color: #a6a99b;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+}
+
+.control-panel-header strong {
+  color: #fff;
+  font-size: 14px;
+}
+
+.control-panel-header button {
+  width: 30px;
+  height: 30px;
+  color: #fff;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.control-section {
+  margin-top: 16px;
+  padding: 13px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+}
+
+.control-section-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 15px;
+}
+
+.control-section-title > span {
+  color: #ffba35;
+  font-size: 18px;
+}
+
+.control-section-title strong {
+  color: #f1f1ec;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.control-time {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.control-time strong {
+  color: #fff;
+  font-size: 29px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.control-time span {
+  color: #a5a59c;
+  font-size: 10px;
+}
+
+.time-slider input {
+  width: 100%;
+  height: 5px;
+  accent-color: #ffb000;
+  cursor: pointer;
+}
+
+.time-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 7px;
+  color: #999b91;
+  font-size: 9px;
+}
+
+.time-presets {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 15px;
+}
+
+.time-presets button {
+  padding: 9px 3px;
+  color: #d3d3cc;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  font-size: 9px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.time-presets button:hover,
+.time-presets button.active {
+  color: #ffcb54;
+  border-color: #e9aa35;
+  background: rgba(255, 178, 35, 0.12);
+}
+
+.live-time-button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 9px;
+  color: #c3c4b9;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.live-time-button.active {
+  color: #42d7a4;
+  border-color: rgba(54, 211, 157, 0.4);
+}
+
+.environment-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+}
+
+.environment-toggle > span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.environment-toggle strong {
+  color: #ecece5;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.environment-toggle small {
+  color: #999b91;
+  font-size: 9px;
+}
+
+.environment-toggle input {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  accent-color: #e9ad38;
+  cursor: pointer;
+}
+
+.viewer-control-panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.viewer-control-panel::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.22);
+  border-radius: 10px;
+}
+
+/* Fullscreen */
+.viewer-shell:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  border: 0;
+  border-radius: 0;
+  background: #101820;
+}
+
+.viewer-shell:fullscreen .viewer-control-panel {
+  top: 78px;
+  right: 22px;
+  width: 340px;
+  max-height: calc(100% - 125px);
+}
+
+.viewer-shell:fullscreen .viewer-topbar {
+  top: 20px;
+  left: 22px;
+  right: 22px;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .viewer-control-panel {
+    top: 105px;
+    right: 9px;
+    bottom: 43px;
+    width: min(290px, calc(100% - 18px));
+    max-height: calc(100% - 155px);
+    padding: 12px;
+  }
+
+  .viewer-shell:fullscreen .viewer-control-panel {
+    top: 100px;
+    right: 9px;
+    width: min(290px, calc(100% - 18px));
+  }
+
+  .control-time strong {
+    font-size: 25px;
+  }
+
+  .viewer-coordinate {
+    left: 9px;
+    bottom: 9px;
+  }
+}
+
     `}</style>
   );
 }
