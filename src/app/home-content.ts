@@ -1,111 +1,232 @@
+
 const homeContent = `
-  <div class=\"hero-section position-relative\">\n  
-  <img src=\"assets/profil.JPG\" 
-    alt=\"Profil\" 
-    style=\"width:100%; 
-    height:auto; 
-display:block;\">\n\n  
-  <div class=\"hero-caption text-center text-white\">\n    
-  <h1 class=\"fw-bold\">Layanan Informasi Jembatan Kota Yogyakarta</h1>\n    
-  <h1>(LINTAS)</h1>\n  </div>\n
-  </div>\n    
-  <section id=\"tentang-lintas\" 
-  class=\"about-section py-5\" 
-  style=\"background:linear-gradient(180deg,#eaf5ff 0%,#ffffff 100%);\">\n      
-  <div class=\"container\">\n        
-  <div class=\"about-wrapper d-flex flex-column flex-lg-row align-items-center gap-5\">\n          
-  <div class=\"about-left flex-shrink-0\" 
-  data-aos=\"fade-right\" 
-  data-aos-duration=\"1000\">\n            
-  <img src=\"assets/background.jpg\" 
-  alt=\"Jembatan Kota Yogyakarta\" 
-  class=\"about-image rounded-4 shadow-lg\">\n          
-  </div>\n          
-  <div class=\"about-right\" 
-  data-aos=\"fade-left\" 
-  data-aos-duration=\"1000\">\n            
-  <div class=\"section-title mb-4\">\n             
-  
-  <h2 class=\"fw-bold\">Tentang <span>LINTAS</span></h2>\n              
-  <div class=\"underline\"></div>\n            
-  </div>\n            
-  <p class=\"lead\">\n              
-  <strong>Layanan Informasi Jembatan Kota Yogyakarta (LINTAS)</strong> merupakan platform digital internal\n              
-  yang dikembangkan oleh <strong>Dinas Pekerjaan Umum, Perumahan dan Kawasan Permukiman Kota Yogyakarta</strong>.\n            
-  </p>\n            
-  <p>LINTAS menyajikan <strong>pemodelan 3D jembatan</strong>, kondisi lingkungan sekitar, serta informasi\n              
-  pendukung lainnya untuk mendukung proses pengelolaan, pemantauan, dan perencanaan infrastruktur jembatan.</p>\n          
-    </div>\n        </div>\n      </div>\n    </section>\n    
-  <section id=\"fitur\" class=\"py-5\" style=\"background:linear-gradient(180deg,#eaf5ff 0%,#ffffff 100%);\">\n    
-  <div class=\"container text-center\">\n      
-  <h2 class=\"fw-bold mb-4\" style=\"color:#002b5b;\">\n        Fitur Utama <span 
-  style=\"color:#ffb400;\">WEBGIS LINTAS</span>\n      
-  </h2>\n      
-  <div class=\"row justify-content-center g-4\">\n        \n        
-  <div class=\"col-6 col-md-4 col-lg-2\">
-  <a href=\"#organisasi\" 
-  style=\"text-decoration:none;\">
-  <div class=\"fitur-card p-4 rounded-4 text-center\">
-  <div class=\"icon-wrapper mb-3\"><img src=\"assets/profil.png\" 
-  alt=\"Profil DPUPKP, Bidang dan UPT Terkait\" 
-  class=\"img-fluid fitur-icon\"></div><h6 
-  class=\"fw-bold mb-1\">Profil DPUPKP, Bidang dan UPT Terkait</h6><div 
-  class=\"fitur-info\">Menampilkan profil DPUPKP dan beberapa bidang serta UPT terkait.</div></div></a></div>\n        
-  <div class=\"col-6 col-md-4 col-lg-2\">
-    <a href=\"/statistika\" 
-    style=\"text-decoration:none;\">
-    <div class=\"fitur-card p-4 rounded-4 text-center\">
-    <div class=\"icon-wrapper mb-3\">
-    <img src=\"assets/statistika.png\" 
-    alt=\"Statistika Jembatan\" 
-    class=\"img-fluid fitur-icon\"></div><h6 
-    class=\"fw-bold mb-1\">Statistika Jembatan</h6><div 
-    class=\"fitur-info\">Menampilkan data statistik jumlah, kondisi, dan klasifikasi jembatan.</div></div></a></div>\n        
-    <div class=\"col-6 col-md-4 col-lg-2\">
-    <a href=\"/pemodelan-3d\" 
-    style=\"text-decoration:none;\">
-    <div class=\"fitur-card p-4 rounded-4 text-center\">
-    <div class=\"icon-wrapper mb-3\">
-    <img src=\"assets/modeling.png\" 
-    alt=\"Pemodelan Jembatan\" 
-    class=\"img-fluid fitur-icon\"></div>
-    <h6 class=\"fw-bold mb-1\">Pemodelan Jembatan</h6><div 
-    class=\"fitur-info\">Visualisasi 3D jembatan untuk analisis teknik.</div></div></a></div>\n        
-    <div class=\"col-6 col-md-4 col-lg-2\"><a href=\"/jembatan\" style=\"text-decoration:none;\">
-    <div class=\"fitur-card p-4 rounded-4 text-center\">
-    <div class=\"icon-wrapper mb-3\"><i class=\"bi bi-geo-alt-fill\" 
-    style=\"font-size:32px;color:#004aad\"></i></div>
-    <h6 class=\"fw-bold mb-1\">Daftar Jembatan</h6><div 
-    class=\"fitur-info\">Informasi enam jembatan di Kota Yogyakarta.</div></div></a></div>\n\n      </div>\n    </div>\n  
-    </section>\n  \n  \n    
-    
-    <footer class=\"footer-custom\">\n      
-    <div class=\"footer-top\">\n        
-    <div class=\"container d-flex justify-content-between align-items-center\">\n          
-    <div class=\"footer-left text-white d-flex align-items-center gap-3\">\n            
-    <img src=\"assets/logo.png\" alt=\"Logo DPUPKP\" class=\"footer-logo\">\n            
-    <p class=\"fw-semibold mb-0\">\n              
-    Dinas Pekerjaan Umum, Perumahan dan Kawasan Permukiman<br>\n              
-    Kota Yogyakarta\n            </p>\n          </div>\n          
-    <div class=\"footer-right text-center\">\n            
-    <h6 class=\"text-white fw-bold mb-2\">Kontak Kami</h6>\n            
-    <div class=\"social-links d-flex justify-content-center gap-3\">\n              
-    <a href=\"https://youtube.com/@dinaspupkpkotayogyakarta\" 
-    class=\"social-icon\">
-    <i class=\"bi bi-youtube\"></i></a>\n              
-    <a href=\"https://www.instagram.com/dpupkpkotajogja\" 
-    class=\"social-icon\"><i class=\"bi bi-instagram\"></i></a>\n              
-    <a href=\"https://pu.jogjakota.go.id/\" 
-    class=\"social-icon\"><i class=\"bi bi-globe\"></i></a>\n              
-    <a href=\"mailto:puperkim@jogjakota.go.id\" 
-    class=\"social-icon\"><i 
-    class=\"bi bi-envelope-fill\"></i></a>\n            </div>\n          </div>\n        </div>\n      </div>\n      
-    <div class=\"footer-bottom\">\n        
-    <p class=\"text-black mb-0\" 
-    style=\"font-weight: bold;\">\n          © Hak Cipta 2025 Dinas Pekerjaan Umum, Perumahan dan Kawasan Permukiman Kota Yogyakarta\n        </p>\n      </div>\n    
-    </footer>\n    
-    <script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js\"></script>\n    
-    <script src=\"https://unpkg.com/aos@2.3.1/dist/aos.js\"></script>\n    
-    <script>\n      document.addEventListener(\"DOMContentLoaded\", function() {\n        AOS.init({\n          duration: 1000,\n          once: true\n        });\n      });\n    
-      </script>`;
+<div class="home-landing">
+
+  <!-- HERO -->
+  <section class="hero-section">
+
+    <img
+      class="hero-background"
+      src="assets/profil.JPG"
+      alt="Tampilan udara kawasan jembatan Kota Yogyakarta"
+    >
+
+    <div class="hero-overlay"></div>
+    <div class="hero-grid-pattern"></div>
+
+    <div class="hero-inner">
+
+      <!-- KONTEN KIRI -->
+      <div class="hero-copy">
+
+        <div class="hero-eyebrow">
+          <i class="bi bi-geo-alt-fill"></i>
+          <span>GEOSPATIAL INFORMATION SYSTEM</span>
+        </div>
+
+        <h1>
+          <span class="hero-title-white">Layanan Informasi</span>
+          <span class="hero-title-yellow">Jembatan Kota Yogyakarta</span>
+          <span class="hero-title-white">(LINTAS)</span>
+        </h1>
+
+        <div class="hero-title-line"></div>
+
+        <p class="hero-description">
+          Platform informasi geospasial untuk visualisasi,
+          pemantauan, pengelolaan, dan perencanaan
+          infrastruktur jembatan Kota Yogyakarta.
+        </p>
+
+        <a href="/persebaran" class="hero-cta">
+          <i class="bi bi-map-fill"></i>
+          <span>Jelajahi WebGIS</span>
+          <i class="bi bi-chevron-right"></i>
+        </a>
+
+      </div>
+
+      <!-- KARTU INFORMASI KANAN -->
+      <aside class="hero-info-card">
+
+        <div class="hero-info-heading">
+          <span class="status-dot"></span>
+          <strong>Informasi Geospasial</strong>
+        </div>
+
+        <div class="hero-info-item">
+          <div class="hero-info-icon">
+            <i class="bi bi-cone-striped"></i>
+          </div>
+          <div>
+            <strong>Data Jembatan</strong>
+            <span>Informasi Infrastruktur</span>
+          </div>
+        </div>
+
+        <div class="hero-info-item">
+          <div class="hero-info-icon">
+            <i class="bi bi-geo-alt-fill"></i>
+          </div>
+          <div>
+            <strong>Data Spasial</strong>
+            <span>Informasi Lokasi</span>
+          </div>
+        </div>
+
+        <div class="hero-info-item">
+          <div class="hero-info-icon">
+            <i class="bi bi-box"></i>
+          </div>
+          <div>
+            <strong>Pemodelan 3D</strong>
+            <span>Visualisasi Infrastruktur</span>
+          </div>
+        </div>
+
+        <div class="hero-card-footer">
+          <span></span>
+          <strong>DPUPKP KOTA YOGYAKARTA</strong>
+        </div>
+
+      </aside>
+
+    </div>
+
+    <div class="hero-scroll-indicator">
+      <i class="bi bi-mouse"></i>
+      <span>
+        <i class="bi bi-chevron-down"></i>
+        <i class="bi bi-chevron-down"></i>
+        SCROLL UNTUK MENJELAJAHI
+      </span>
+    </div>
+
+    <!-- LENGKUNGAN BAWAH HERO -->
+    <svg class="hero-wave" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,65 C250,5 440,30 680,62 C930,95 1190,55 1440,12 L1440,100 L0,100 Z" fill="#ffffff"/>
+    </svg>
+
+  </section>
+
+  <!-- TENTANG LINTAS -->
+  <section id="tentang-lintas" class="about-section">
+    <div class="about-container">
+
+      <div class="about-left" data-aos="fade-right">
+        <img
+          src="assets/background.jpg"
+          alt="Jembatan dan kawasan Kota Yogyakarta"
+          class="about-image"
+        >
+      </div>
+
+      <div class="about-right" data-aos="fade-left">
+
+        <div class="about-heading">
+          <h2>Tentang <span>LINTAS</span></h2>
+          <div class="about-underline"></div>
+        </div>
+
+        <p>
+          <strong>Layanan Informasi Jembatan Kota Yogyakarta (LINTAS)</strong>
+          merupakan platform digital internal yang dikembangkan oleh
+          <strong>Dinas Pekerjaan Umum, Perumahan dan Kawasan Permukiman
+          Kota Yogyakarta.</strong>
+        </p>
+
+        <p>
+          LINTAS menyajikan <strong>pemodelan 3D jembatan</strong>,
+          kondisi lingkungan sekitar, serta informasi pendukung lainnya
+          untuk mendukung proses pengelolaan, pemantauan, dan perencanaan
+          infrastruktur jembatan.
+        </p>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FITUR -->
+  <section id="fitur" class="features-section">
+    <div class="features-container">
+
+      <div class="features-heading">
+        <span>LAYANAN DIGITAL</span>
+        <h2>Fitur Utama <strong>WEBGIS LINTAS</strong></h2>
+        <p>Akses informasi dan visualisasi infrastruktur jembatan Kota Yogyakarta.</p>
+      </div>
+
+      <div class="features-grid">
+
+        <a href="#organisasi" class="feature-card">
+          <div class="feature-icon"><i class="bi bi-building"></i></div>
+          <h3>Profil DPUPKP</h3>
+          <p>Profil DPUPKP, bidang, dan UPT terkait.</p>
+        </a>
+
+        <a href="/statistika" class="feature-card">
+          <div class="feature-icon"><i class="bi bi-bar-chart-line-fill"></i></div>
+          <h3>Statistika Jembatan</h3>
+          <p>Statistik jumlah, kondisi, dan klasifikasi jembatan.</p>
+        </a>
+
+        <a href="/pemodelan-3d" class="feature-card">
+          <div class="feature-icon"><i class="bi bi-box"></i></div>
+          <h3>Pemodelan 3D</h3>
+          <p>Visualisasi tiga dimensi infrastruktur jembatan.</p>
+        </a>
+
+        <a href="/jembatan" class="feature-card">
+          <div class="feature-icon"><i class="bi bi-geo-alt-fill"></i></div>
+          <h3>Daftar Jembatan</h3>
+          <p>Informasi enam jembatan di Kota Yogyakarta.</p>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer-custom">
+    <div class="footer-top">
+      <div class="footer-container">
+
+        <div class="footer-left">
+          <img src="assets/logo.png" alt="Logo DPUPKP" class="footer-logo">
+          <p>
+            Dinas Pekerjaan Umum, Perumahan dan Kawasan Permukiman<br>
+            Kota Yogyakarta
+          </p>
+        </div>
+
+        <div class="footer-right">
+          <h3>Kontak Kami</h3>
+          <div class="social-links">
+            <a href="https://youtube.com/@dinaspupkpkotayogyakarta" class="social-icon" aria-label="YouTube">
+              <i class="bi bi-youtube"></i>
+            </a>
+            <a href="https://www.instagram.com/dpupkpkotajogja" class="social-icon" aria-label="Instagram">
+              <i class="bi bi-instagram"></i>
+            </a>
+            <a href="https://pu.jogjakota.go.id/" class="social-icon" aria-label="Website DPUPKP">
+              <i class="bi bi-globe"></i>
+            </a>
+            <a href="mailto:puperkim@jogjakota.go.id" class="social-icon" aria-label="Email">
+              <i class="bi bi-envelope-fill"></i>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      © Hak Cipta 2025 Dinas Pekerjaan Umum, Perumahan dan Kawasan Permukiman Kota Yogyakarta
+    </div>
+  </footer>
+
+</div>
+`;
+
 export default homeContent;
