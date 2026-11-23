@@ -445,8 +445,14 @@ function CesiumBridgeViewer({ bridge }: { bridge: BridgeData }) {
       const atmosphere = scene.skyAtmosphere;
 
       scene.globe.enableLighting = true;
-      scene.sun.show = true;
-      scene.moon.show = true;
+      
+      if (scene.sun) {
+        scene.sun.show = true;
+      }
+      
+      if (scene.moon) {
+        scene.moon.show = true;
+      }
 
       if (atmosphere) {
         atmosphere.show = true;
