@@ -1,176 +1,232 @@
+
 <?php
 if (session_status() === PHP_SESSION_NONE) {
-  session_start();
+    session_start();
 }
+
+$isUser = isset($_SESSION['user']);
 ?>
-  <header class="header d-flex align-items-center justify-content-between px-4">
-  <div class="logo-group d-flex align-items-center">
-    <img src="/assets/jogja.png" alt="Logo Jogja">
-    <img src="/assets/logo.png" alt="Logo DPUPKP">
-    <div class="title-text">
-      <h1>LINTAS</h1>
-      <h2>Layanan Informasi Jembatan Kota Yogyakarta</h2>
-      <h3>Dinas Pekerjaan Umum Perumahan dan Kawasan Permukiman</h3>
-    </div>
-  </div>
-  <nav class="navbar navbar-expand-lg navbar-dark">
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link" href="/index.php">Beranda</a></li>
-        <?php if(isset($_SESSION['user'])): ?>
-    <li class="nav-item"><a class="nav-link" href="/frontend/statistika.php">Statistika</a></li>
-  <?php else: ?>
-    <li class="nav-item">
-      <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#signinModal">
-        Statistika
-      </a>
-    </li>
-  <?php endif; ?>
-
-        <?php if(isset($_SESSION['user'])): ?>
-    <li class="nav-item"><a class="nav-link" href="/frontend/detail_jembatan.php">Pemodelan 3D</a></li>
-  <?php else: ?>
-    <li class="nav-item">
-      <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#signinModal">
-        Pemodelan 3D
-      </a>
-    </li>
-<?php endif; ?>
-
-  <?php if(isset($_SESSION['user'])): ?>
-    <li class="nav-item"><a class="nav-link" href="/backend/auth/signout.php">Sign Out</a></li>
-  <?php else: ?>
-    <li class="nav-item">
-      <a class="nav-link" href="/backend/auth/signin.php">
-        <i class="bi bi-box-arrow-in-right"></i> Sign In
-      </a>
-    </li>
-  <?php endif; ?>
-</ul>
-    </div>
-  </nav>
-</header>
-<?php if(!isset($_SESSION['user'])): ?>
-<div class="modal fade" id="signinModal" tabindex="-1" aria-labelledby="signinModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header" style="background-color:#f2b705;">
-        <h5 class="modal-title" id="signinModalLabel" style="color: #fff; font-weight: bold">
-          <i class="bi bi-info-circle-fill"></i> Informasi
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-      </div>
-      <div class="modal-body text-center">
-        <p style="font-size: 18px;">Silahkan Anda <b>Sign In</b> untuk mengakses fitur ini.</p>
-      </div>
-      <div class="modal-footer justify-content-center">
-        <a href="/backend/auth/signin.php?redirect=<?php echo $_SERVER['REQUEST_URI']; ?>" class="btn btn-primary">
-          <i class="bi bi-box-arrow-in-right"></i> Sign In
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-<?php endif; ?>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+<header class="lintas-header">
+    <a href="/index.php" class="header-brand">
+        <img src="/assets/jogja.png" alt="Logo Pemerintah Kota Yogyakarta">
+        <img src="/assets/logo.png" alt="Logo DPUPKP">
+
+        <div class="header-brand-text">
+            <h1>LINTAS</h1>
+            <p>Layanan Informasi Jembatan<br>Kota Yogyakarta</p>
+        </div>
+    </a>
+
+    <button class="mobile-toggle" type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#lintasNavigation"
+            aria-label="Buka navigasi">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <nav class="lintas-navigation collapse" id="lintasNavigation">
+        <a href="/index.php" class="nav-link-custom active">
+            <i class="bi bi-house-door-fill"></i>
+            <span>Beranda</span>
+        </a>
+
+        <?php if ($isUser): ?>
+            <a href="/frontend/statistika.php" class="nav-link-custom">
+                <i class="bi bi-bar-chart-line-fill"></i>
+                <span>Statistika</span>
+            </a>
+
+            <a href="/frontend/persebaran.php" class="nav-link-custom">
+                <i class="bi bi-layers-fill"></i>
+                <span>Persebaran</span>
+            </a>
+
+            <a href="/frontend/detail_jembatan.php" class="nav-link-custom">
+                <i class="bi bi-box"></i>
+                <span>Pemodelan 3D</span>
+            </a>
+
+            <a href="/backend/auth/signout.php" class="nav-link-custom">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Sign Out</span>
+            </a>
+        <?php else: ?>
+            <a href="#" class="nav-link-custom"
+               data-bs-toggle="modal" data-bs-target="#signinModal">
+                <i class="bi bi-bar-chart-line-fill"></i>
+                <span>Statistika</span>
+            </a>
+
+            <a href="#" class="nav-link-custom"
+               data-bs-toggle="modal" data-bs-target="#signinModal">
+                <i class="bi bi-layers-fill"></i>
+                <span>Persebaran</span>
+            </a>
+
+            <a href="#" class="nav-link-custom"
+               data-bs-toggle="modal" data-bs-target="#signinModal">
+                <i class="bi bi-box"></i>
+                <span>Pemodelan 3D</span>
+            </a>
+        <?php endif; ?>
+    </nav>
+</header>
+
 <style>
-  :root {
-    --primary: #003366;
-    --accent: #ffc20e;
-    --font-main: 'Roboto', 'Inter', sans-serif;
-  }
-body {
-  padding-top: 110px !important;
-}
-  .header {
-    color: var(--primary);
+.lintas-header {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 70px;
-    z-index: 1000;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    font-family: var(--font-main);
-    background-color: rgba(255, 255, 255, 0.4);
-  }
+    top: 16px;
+    left: 4%;
+    width: 92%;
+    height: 74px;
+    z-index: 10000;
 
-  .logo-group img {
-    height: 55px;
-    margin-right: 10px;
-  }
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-  .title-text h1 {
-    font-size: 30px;
-    font-weight: 700;
-    margin: 0;
+    padding: 8px 30px;
+
+    background: rgba(255,255,255,.83);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    border: 1px solid rgba(255,255,255,.8);
+    border-radius: 22px;
+
+    box-shadow: 0 8px 30px rgba(0,35,75,.14);
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    min-width: 0;
+}
+
+.header-brand img {
+    height: 53px;
+    width: auto;
+    object-fit: contain;
+}
+
+.header-brand-text h1 {
+    color: #003366;
+    font-size: 25px;
+    font-weight: 900;
     letter-spacing: 1px;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-  }
-
-  .title-text h2,
-  .title-text h3 {
-    font-size: 12px;
-    color: var(--primary);
-    font-weight: bold;
     margin: 0;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-  }
+}
 
-  .navbar-nav .nav-link {
-    color: var(--primary) !important;
-    font-weight: 500;
-    padding: 0 12px;
-  }
+.header-brand-text p {
+    color: #003366;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0;
+}
 
-  .navbar-nav .nav-link:hover,
-  .navbar-nav .nav-link:focus {
-    color: var(--accent) !important;
-  }
+.lintas-navigation {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
 
-  .dropdown-menu {
-    background-color: rgba(255, 255, 255, 0.4);
-    border-radius: 6px;
-    border: none;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-.dropdown-item {
-    color: var(--primary);
-  }
-  
-  .dropdown-item:hover {
-    background-color: var(--accent);
-    color: var(--primary);
-    font-weight: 600;
-  }
+.nav-link-custom {
+    position: relative;
+    min-width: 100px;
+    padding: 9px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
 
-  @media (max-width: 992px) {
-    .header {
-      flex-wrap: wrap;
-      height: auto;
-      text-align: center;
-      padding: 10px;
+    color: #003366;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: .3s ease;
+}
+
+.nav-link-custom i {
+    font-size: 22px;
+}
+
+.nav-link-custom:hover {
+    color: #e9a900;
+    transform: translateY(-2px);
+}
+
+.nav-link-custom.active::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    width: 65%;
+    height: 4px;
+    background: #f2b705;
+    border-radius: 5px;
+}
+
+.mobile-toggle {
+    display: none;
+    border: 0;
+    background: transparent;
+    color: #003366;
+    font-size: 28px;
+}
+
+@media(max-width: 992px) {
+    .lintas-header {
+        left: 3%;
+        width: 94%;
+        height: auto;
+        min-height: 68px;
+        padding: 8px 16px;
+        flex-wrap: wrap;
     }
 
-    .navbar-collapse {
-      width: 100%;
+    .header-brand img {
+        height: 43px;
     }
 
-    .navbar-nav {
-      flex-direction: column;
-      align-items: center;
-      padding: 10px 0;
+    .header-brand-text h1 {
+        font-size: 21px;
     }
 
-    .nav-link {
-      color: white !important;
+    .header-brand-text p {
+        font-size: 9px;
     }
-  }
+
+    .mobile-toggle {
+        display: block;
+    }
+
+    .lintas-navigation {
+        display: none;
+        width: 100%;
+        padding: 15px 0 8px;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .lintas-navigation.show {
+        display: flex;
+    }
+
+    .nav-link-custom {
+        flex-direction: row;
+        justify-content: center;
+        width: 100%;
+        padding: 10px;
+    }
+
+    .nav-link-custom.active::after {
+        display: none;
+    }
+}
 </style>
