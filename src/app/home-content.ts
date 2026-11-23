@@ -1,5 +1,5 @@
-const homeContent = 
-  "<div class=\"hero-section position-relative\">\n  
+const homeContent = `
+  <div class=\"hero-section position-relative\">\n  
   <img src=\"assets/profil.JPG\" 
     alt=\"Profil\" 
     style=\"width:100%; 
@@ -106,5 +106,6 @@ display:block;\">\n\n
     </footer>\n    
     <script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js\"></script>\n    
     <script src=\"https://unpkg.com/aos@2.3.1/dist/aos.js\"></script>\n    
-    <script>\n      document.addEventListener(\"DOMContentLoaded\", function() {\n        AOS.init({\n          duration: 1000,\n          once: true\n        });\n      });\n    </script>";
+    <script>\n      document.addEventListener(\"DOMContentLoaded\", function() {\n        AOS.init({\n          duration: 1000,\n          once: true\n        });\n      });\n    
+      </script>`;
 export default homeContent;
