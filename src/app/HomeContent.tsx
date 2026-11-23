@@ -6,6 +6,7 @@ import { r2Asset } from "@/lib/assets";
 
 export default function HomeContent() {
   const [html, setHtml] = useState("");
+
   useEffect(() => {
     const updatedHtml = homeContent
       .replace(
@@ -15,6 +16,7 @@ export default function HomeContent() {
       .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "");
 
     setHtml(updatedHtml);
+
     let active = true;
 
     import("aos").then((module) => {
@@ -23,6 +25,8 @@ export default function HomeContent() {
           duration: 1000,
           once: true,
         });
+
+        module.default.refresh();
       }
     });
 
