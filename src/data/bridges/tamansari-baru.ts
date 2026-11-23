@@ -139,28 +139,40 @@ export const tamansariBaru: BridgeData = {
   photos: [
   {
     title: "Foto Jembatan Tamansari Baru 1",
-    url: r2Asset("landscape/taman_sari_baru.JPG"),
+    url: r2Asset("landscape/tamansaribaru_1.JPG"),
+  },
+     {
+    title: "Foto Jembatan Tamansari Baru 2",
+    url: r2Asset("landscape/tamansaribaru_2.JPG"),
+  },
+     {
+    title: "Foto Jembatan Tamansari Baru 3",
+    url: r2Asset("landscape/tamansaribaru_3.JPG"),
+  },
+     {
+    title: "Foto Jembatan Tamansari Baru 4",
+    url: r2Asset("landscape/tamansaribaru_4.JPG"),
   },
 ],
 
 documents: [
   {
-    title: "Dokumen Teknis Jembatan Kewek",
+    title: "Dokumen Teknis Jembatan Tamansari Baru",
     type: "pdf",
-    url: r2Asset("Jembatan Kewek.pdf", "data"),
+    url: r2Asset("Jembatan Taman Sari Baru.pdf.pdf", "data"),
   },
   {
-    title: "Data DWG Jembatan Kewek",
+    title: "Data DWG Jembatan Tamansari Baru",
     type: "zip",
-    url: r2Asset("jembatan_kewek.zip", "data"),
+    url: r2Asset("jembatan_taman_sari_baru.zip", "data"),
   },
   {
-    title: "Peta Planimetris Jembatan Kewek",
+    title: "Peta Planimetris Jembatan Tamansari Baru",
     type: "pdf",
     url: r2Asset("Peta Planimetris Jembatan Kewek.pdf", "data"),
   },
   {
-    title: "Data Kontur Jembatan Kewek",
+    title: "Data Kontur Jembatan Tamansari Baru",
     type: "zip",
     url: r2Asset("kontur_kewek.zip", "data"),
   },
