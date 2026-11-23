@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -468,7 +467,8 @@ function normalizeAreaName(value: unknown) {
 function styleKelurahanEntities(
   dataSource: any,
   Cesium: any,
-  selectedName: string | null
+  selectedName: string | null,
+  basemap: BasemapType
 ) {
   if (!dataSource) return;
 
@@ -529,15 +529,25 @@ function styleKelurahanEntities(
     const fillColor =
       kemantrenColorByKey.get(kemantrenKey) ?? "#D4DCE5";
 
+    // OSM memiliki banyak label dan detail jalan, sehingga fill perlu
+    // sedikit lebih pekat agar warna kemantren tetap terbaca.
+    // Satellite dipertahankan lebih transparan agar citra tetap terlihat.
+    const isOsm = basemap === "osm";
+    const fillAlpha = isSelected
+      ? isOsm ? 0.64 : 0.52
+      : isOsm ? 0.50 : 0.30;
+
     entity.polygon.material = Cesium.Color.fromCssColorString(
       isSelected ? "#8FBFA8" : fillColor
-    ).withAlpha(isSelected ? 0.52 : 0.30);
+    ).withAlpha(fillAlpha);
 
     entity.polygon.outline = true;
     entity.polygon.outlineColor = isSelected
-      ? Cesium.Color.fromCssColorString("#174A70").withAlpha(0.95)
-      : Cesium.Color.fromCssColorString("#FFFFFF").withAlpha(0.82);
-    entity.polygon.outlineWidth = isSelected ? 2.5 : 1;
+      ? Cesium.Color.fromCssColorString("#174A70").withAlpha(0.98)
+      : Cesium.Color.fromCssColorString("#FFFFFF").withAlpha(
+          isOsm ? 0.94 : 0.82
+        );
+    entity.polygon.outlineWidth = isSelected ? 2.5 : isOsm ? 1.25 : 1;
 
     entity.polygon.height = 0;
     entity.polygon.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
@@ -702,7 +712,8 @@ const dataSource =
             styleKelurahanEntities(
               kelurahanSource,
               Cesium,
-              selectedKelurahanRef.current
+              selectedKelurahanRef.current,
+              basemapRef.current
             );
             console.log(
               "GeoJSON kelurahan berhasil dimuat:",
@@ -954,8 +965,8 @@ useEffect(() => {
   const Cesium = cesiumRef.current;
   const source = kelurahanDataSourceRef.current;
   if (!viewer || viewer.isDestroyed() || !Cesium || !source) return;
-  styleKelurahanEntities(source, Cesium, selectedKelurahan);
-}, [selectedKelurahan]);
+  styleKelurahanEntities(source, Cesium, selectedKelurahan, basemap);
+}, [selectedKelurahan, basemap]);
 
 // RESET KOMPAS: arah utara berada di atas
 useEffect(() => {
