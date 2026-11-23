@@ -7,7 +7,7 @@ import { mujaMujuUtara } from "./muja-muju-utara";
 import { winongSelatan } from "./winong-selatan";
 import { winongUtara } from "./winong-utara";
 import { sardjito } from "./sardjito";
-import { sugengJeroni2 } from "./sugeng-jeroni-2";
+import { tamansariBaru } from "./tamansari-baru";
 
 export const bridges: BridgeData[] = [
   kewek,
@@ -17,7 +17,7 @@ export const bridges: BridgeData[] = [
   winongSelatan,
   winongUtara,
   sardjito,
-  sugengJeroni2,
+  tamansariBaru,
 ];
 
 export function getBridgeBySlug(slug: string) {
