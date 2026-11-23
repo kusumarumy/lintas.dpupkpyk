@@ -495,14 +495,14 @@ function styleKelurahanEntities(
   ];
 
   const entities = dataSource.entities.values;
-  const kemantrenKeys = Array.from(
-    new Set(
+  const kemantrenKeys: string[] = Array.from(
+    new Set<string>(
       entities
         .filter((entity: any) => entity.polygon)
-        .map((entity: any) =>
+        .map((entity: any): string =>
           normalizeAreaName(getPropertyValue(entity, "NAME_3", Cesium))
         )
-        .filter((name: string) => name !== "")
+        .filter((name: string) => name.length > 0)
     )
   ).sort();
 
