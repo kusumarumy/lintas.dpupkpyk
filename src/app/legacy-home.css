@@ -594,7 +594,7 @@ body:has(.lintas-home-content) {
     flex-direction: column;
     align-items: stretch;
     gap: 25px;
-    padding: 125px 22px 125px;
+    padding: 50px 22px 125px;
   }
 
   .lintas-home-content .hero-copy h1 {
