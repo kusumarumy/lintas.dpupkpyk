@@ -1,9 +1,9 @@
-
 "use client";
 
 import { useEffect, useRef } from "react";
 import type { BridgeMapItem } from "./types";
 import { getBridgeAssetIds } from "./bridgeAssets";
+import { r2Asset } from "@/lib/assets";
 type BasemapType = "esri" | "osm";
 
 type Props = {
@@ -329,6 +329,42 @@ function ensureTerrainLoaded(
   // HELPER: MENGATUR TAMPILAN ENTITY GEOJSON
   // =========================================================
 
+  function getConditionIconUrl(condition: unknown): string | null {
+    const value = String(condition ?? "").trim().toLowerCase();
+
+    // Data kondisi pada GeoJSON: 0 = Baik sampai 5 = Runtuh.
+    // Mendukung nilai numerik ("0", "1", dst.) maupun label teks.
+    let code: number | null = null;
+
+    const numericMatch = value.match(/^([0-5])(?:\s|[:.-]|$)/);
+    if (numericMatch) {
+      code = Number(numericMatch[1]);
+    } else if (/^(baik|mantap)$/.test(value)) {
+      code = 0;
+    } else if (value.includes("rusak ringan")) {
+      code = 1;
+    } else if (value.includes("rusak sedang")) {
+      code = 2;
+    } else if (value.includes("rusak berat")) {
+      code = 3;
+    } else if (value.includes("kritis")) {
+      code = 4;
+    } else if (value.includes("runtuh")) {
+      code = 5;
+    }
+
+    const filenames: Record<number, string> = {
+      0: "baik.png",
+      1: "rusak ringan.png",
+      2: "rusak sedang.png",
+      3: "rusak berat.png",
+      4: "kritis.png",
+      5: "runtuh.png",
+    };
+
+    return code === null ? null : r2Asset(filenames[code]);
+  }
+
   function styleGeoJsonEntities(
     dataSource: any,
     Cesium: any
@@ -342,19 +378,41 @@ function ensureTerrainLoaded(
         bridge !== null &&
         selectedBridgeRef.current?.id === bridge.id;
 
-      // Marker titik jembatan.
+      // Simbol marker PNG mengikuti nilai field "kondisi" dari GeoJSON R2.
       if (entity.position) {
-        entity.point = new Cesium.PointGraphics({
-          pixelSize: isSelected ? 15 : 10,
-          color: isSelected
-            ? Cesium.Color.ORANGE
-            : Cesium.Color.fromCssColorString("#00D4FF"),
-          outlineColor: Cesium.Color.WHITE,
-          outlineWidth: 2,
-          heightReference:
-            Cesium.HeightReference.CLAMP_TO_GROUND,
-          disableDepthTestDistance: 100000,
-        });
+        const propertyCondition = entity.properties?.kondisi;
+        const geoJsonCondition =
+          propertyCondition && typeof propertyCondition.getValue === "function"
+            ? propertyCondition.getValue(Cesium.JulianDate.now())
+            : propertyCondition;
+        const condition = bridge?.kondisi || geoJsonCondition || "";
+        const iconUrl = getConditionIconUrl(condition);
+
+        if (iconUrl) {
+          entity.point = undefined;
+          entity.billboard = new Cesium.BillboardGraphics({
+            image: iconUrl,
+            width: isSelected ? 38 : 32,
+            height: isSelected ? 38 : 32,
+            verticalOrigin: Cesium.VerticalOrigin.CENTER,
+            horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            disableDepthTestDistance: 100000,
+          });
+        } else {
+          // Fallback untuk nilai kondisi kosong/tidak dikenal.
+          entity.billboard = undefined;
+          entity.point = new Cesium.PointGraphics({
+            pixelSize: isSelected ? 15 : 10,
+            color: isSelected
+              ? Cesium.Color.ORANGE
+              : Cesium.Color.fromCssColorString("#00D4FF"),
+            outlineColor: Cesium.Color.WHITE,
+            outlineWidth: 2,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            disableDepthTestDistance: 100000,
+          });
+        }
 
         entity.label = new Cesium.LabelGraphics({
           text: bridge?.nama || entity.name || "Jembatan",
@@ -363,7 +421,7 @@ function ensureTerrainLoaded(
           outlineColor: Cesium.Color.BLACK,
           outlineWidth: 3,
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          pixelOffset: new Cesium.Cartesian2(0, -20),
+          pixelOffset: new Cesium.Cartesian2(0, -24),
           scale: isSelected ? 1.0 : 0.85,
           show: isSelected,
           disableDepthTestDistance: 100000,
