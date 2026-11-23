@@ -15,6 +15,7 @@ export default function Header() {
 
   const isActive = (path: string) =>
     pathname === path ? "active" : "";
+
 const isHome = pathname === "/";
 
 return (
@@ -87,6 +88,7 @@ return (
     </div>
   </header>
 );
+
 
 
 }
