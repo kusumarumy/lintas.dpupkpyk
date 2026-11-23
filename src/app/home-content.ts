@@ -2,58 +2,42 @@
 const homeContent = `
 <div class="home-landing">
 
-  <!-- HERO -->
   <section class="hero-section">
-
     <img
       class="hero-background"
       src="assets/profil.JPG"
       alt="Tampilan udara kawasan jembatan Kota Yogyakarta"
     >
-
     <div class="hero-overlay"></div>
     <div class="hero-grid-pattern"></div>
-
     <div class="hero-inner">
-
-      <!-- KONTEN KIRI -->
       <div class="hero-copy">
-
         <div class="hero-eyebrow">
           <i class="bi bi-geo-alt-fill"></i>
           <span>GEOSPATIAL INFORMATION SYSTEM</span>
         </div>
-
         <h1>
           <span class="hero-title-white">Layanan Informasi</span>
           <span class="hero-title-yellow">Jembatan Kota Yogyakarta</span>
           <span class="hero-title-white">(LINTAS)</span>
         </h1>
-
         <div class="hero-title-line"></div>
-
         <p class="hero-description">
           Platform informasi geospasial untuk visualisasi,
           pemantauan, pengelolaan, dan perencanaan
           infrastruktur jembatan Kota Yogyakarta.
         </p>
-
         <a href="/persebaran" class="hero-cta">
           <i class="bi bi-map-fill"></i>
           <span>Jelajahi WebGIS</span>
           <i class="bi bi-chevron-right"></i>
         </a>
-
       </div>
-
-      <!-- KARTU INFORMASI KANAN -->
       <aside class="hero-info-card">
-
         <div class="hero-info-heading">
           <span class="status-dot"></span>
           <strong>Informasi Geospasial</strong>
         </div>
-
         <div class="hero-info-item">
           <div class="hero-info-icon">
             <i class="bi bi-cone-striped"></i>
@@ -63,7 +47,6 @@ const homeContent = `
             <span>Informasi Infrastruktur</span>
           </div>
         </div>
-
         <div class="hero-info-item">
           <div class="hero-info-icon">
             <i class="bi bi-geo-alt-fill"></i>
@@ -73,7 +56,6 @@ const homeContent = `
             <span>Informasi Lokasi</span>
           </div>
         </div>
-
         <div class="hero-info-item">
           <div class="hero-info-icon">
             <i class="bi bi-box"></i>
@@ -83,24 +65,24 @@ const homeContent = `
             <span>Visualisasi Infrastruktur</span>
           </div>
         </div>
-
         <div class="hero-card-footer">
           <span></span>
           <strong>DPUPKP KOTA YOGYAKARTA</strong>
         </div>
-
       </aside>
-
     </div>
-
-    <div class="hero-scroll-indicator">
-      <i class="bi bi-mouse"></i>
-      <span>
-        <i class="bi bi-chevron-down"></i>
-        <i class="bi bi-chevron-down"></i>
-        SCROLL UNTUK MENJELAJAHI
-      </span>
-    </div>
+    <a
+  href="#tentang-lintas"
+  class="hero-scroll-indicator"
+  aria-label="Scroll ke bagian Tentang LINTAS"
+>
+  <i class="bi bi-mouse"></i>
+  <span>
+    <i class="bi bi-chevron-down"></i>
+    <i class="bi bi-chevron-down"></i>
+    SCROLL UNTUK MENJELAJAHI
+  </span>
+</a>
 
     <!-- LENGKUNGAN BAWAH HERO -->
     <svg class="hero-wave" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true">
@@ -110,7 +92,7 @@ const homeContent = `
   </section>
 
   <!-- TENTANG LINTAS -->
-  <section id="tentang-lintas" class="about-section">
+  <section id="tentang-lintas" class="about-section py-5">
     <div class="about-container">
 
       <div class="about-left" data-aos="fade-right">
