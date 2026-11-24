@@ -61,7 +61,7 @@ export const sardjito: BridgeData = {
   currentCondition: {
     score: 3,
     condition: "Rusak Berat",
-    stability: "",
+    stability: "Tidak Mantap",
     handlingPlan: "Memerlukan Perbaikan Secepatnya Dalam 1 tahun",
     construction: "Rangka Baja",
     damage: ["Cat Rangka Baja Secara Keseluruhan Sudah Mengelupas, Baja Penopang Lantai Jembatan Sudah Mengalami Krosi, Baja Tulangan Plat Lantai Sudah Terlihat dan Korosi"],
