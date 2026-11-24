@@ -1,7 +1,7 @@
 import type { BridgeData } from "./types";
 import { r2Asset } from "@/lib/assets";
 
-export const sardjito: BridgeData = {
+export const serangan: BridgeData = {
   id: null,
   slug: "serangan",
   name: "Jembatan Serangan",
