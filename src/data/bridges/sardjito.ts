@@ -55,7 +55,7 @@ export const sardjito: BridgeData = {
     {
       year: 2024,
       value: 3,
-      note: "Rusak Ringan",
+      note: "Rusak Berat",
     },],
 
   currentCondition: {
