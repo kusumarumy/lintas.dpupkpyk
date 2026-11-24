@@ -63,26 +63,26 @@ export const serangan: BridgeData = {
     condition: "Rusak Sedang",
     stability: "",
     handlingPlan: "",
-    construction: "",
-    damage: [""],
-    recommendations: [""],
+    construction: "Girder Prategang",
+    damage: ["Pas. Batu Depan Abt Sudah Mulai Tergerus"],
+    recommendations: ["Perbaikan Pas. Batu"],
   },
 
   components: {
     superstructure: [
       {
         name: "Struktur Atas",
-        type: "",
-        value: 3,
+        type: "Girder Prategang",
+        value: 0,
       },
       {
         name: "Sistem Lantai",
-        type: "",
-        value: 2,
+        type: "Aspal",
+        value: 1,
       },
       {
         name: "Perlengkapan (Sandaran, Railing, Pipa Cucuran)",
-        type: "",
+        type: "Beton dan Pipa Baja",
         value: 1,
       },
     ],
@@ -90,18 +90,18 @@ export const serangan: BridgeData = {
     substructure: [
       {
         name: "Abutmen/Pilar",
-        type: "",
-        value: 0,
+        type: "Beton Bertulang",
+        value: 1,
       },
       {
         name: "Pondasi",
-        type: "",
+        type: "Beton",
         value: 0,
       },
       {
         name: "Dinding Penahan",
-        type: "",
-        value: 0,
+        type: "Pasangan Batu",
+        value: 1,
       },
     ],
   },
