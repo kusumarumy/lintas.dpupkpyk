@@ -115,6 +115,18 @@ export const serangan: BridgeData = {
     title: "Foto Jembatan Serangan 1",
     url: r2Asset("landscape/serangan.jpg"),
   },
+    {
+    title: "Foto Jembatan Serangan 2",
+    url: r2Asset("landscape/serangan 2.jpeg"),
+  },
+    {
+    title: "Foto Jembatan Serangan 3",
+    url: r2Asset("landscape/serangan 3.jpeg"),
+  },
+    {
+    title: "Foto Jembatan Serangan 4",
+    url: r2Asset("landscape/serangan 4.jpeg"),
+  },
   ],
 
   documents: [
