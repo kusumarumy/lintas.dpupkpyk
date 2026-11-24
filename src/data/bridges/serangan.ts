@@ -20,7 +20,7 @@ export const serangan: BridgeData = {
     latitudeText: `-7°48'3.87" LS`,
     longitudeText: `110°21'17.27" BT`,
 
-    yearBuilt: 0,
+    yearBuilt: null,
     operationalStatus: "Beroperasi",
     riverValue: 2,
     riverCondition: "Rusak Sedang",
@@ -61,7 +61,7 @@ export const serangan: BridgeData = {
   currentCondition: {
     score: 2,
     condition: "Rusak Sedang",
-    stability: "",
+    stability: "Tidak Mantap",
     handlingPlan: "Memerlukan Perbaikan Berkala",
     construction: "Girder Prategang",
     damage: ["Pas. Batu Depan Abt Sudah Mulai Tergerus"],
