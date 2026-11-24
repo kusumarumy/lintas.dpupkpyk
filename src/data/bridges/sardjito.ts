@@ -4,12 +4,12 @@ import { r2Asset } from "@/lib/assets";
 export const sardjito: BridgeData = {
   id: null,
   slug: "sardjito",
-  name: "Jembatan Sardjito",
+  name: "Jalan Prof. Dr. Sardjito",
 
   identity: {
     roadNumber: "N_1138",
     roadName: "Jembatan Sardjito",
-    village: "Cokrodiningratan ",
+    village: "Cokrodiningratan",
     district: "Jetis",
     city: "Kota Yogyakarta",
 
@@ -114,6 +114,18 @@ export const sardjito: BridgeData = {
     {
     title: "Foto Jembatan Sardjito 1",
     url: r2Asset("landscape/sardjito.JPG"),
+  },
+    {
+    title: "Foto Jembatan Sardjito 2",
+    url: r2Asset("landscape/sardjito 2.jpeg"),
+  },
+    {
+    title: "Foto Jembatan Sardjito 3",
+    url: r2Asset("landscape/sardjito 3.jpeg"),
+  },
+    {
+    title: "Foto Jembatan Sardjito 4",
+    url: r2Asset("landscape/sardjito4.jpeg"),
   },
   ],
 
