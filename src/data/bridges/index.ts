@@ -19,7 +19,7 @@ export const bridges: BridgeData[] = [
   winongUtara,
   sardjito,
   tamansariBaru,
-  serangan
+  serangan,
 ];
 
 export function getBridgeBySlug(slug: string) {
