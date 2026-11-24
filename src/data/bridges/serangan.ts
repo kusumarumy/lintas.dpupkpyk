@@ -62,7 +62,7 @@ export const serangan: BridgeData = {
     score: 2,
     condition: "Rusak Sedang",
     stability: "",
-    handlingPlan: "",
+    handlingPlan: "Memerlukan Perbaikan Berkala",
     construction: "Girder Prategang",
     damage: ["Pas. Batu Depan Abt Sudah Mulai Tergerus"],
     recommendations: ["Perbaikan Pas. Batu"],
