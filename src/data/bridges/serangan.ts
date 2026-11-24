@@ -112,21 +112,21 @@ export const serangan: BridgeData = {
 
   photos: [
     {
-    title: "Foto Jembatan Sardjito 1",
-    url: r2Asset("landscape/sardjito.JPG"),
+    title: "Foto Jembatan Serangan 1",
+    url: r2Asset("landscape/serangan.jpg"),
   },
   ],
 
   documents: [
     {
-      title: "Dokumen Teknis Jembatan Sardjito",
+      title: "Dokumen Teknis Jembatan Serangan",
       type: "pdf",
-      url: r2Asset("Jembatan Sardjito.pdf", "data"),
+      url: r2Asset("Jembatan Serangan.pdf", "data"),
     },
     {
-      title: "Data DWG Jembatan Sardjito",
+      title: "Data DWG Jembatan Serangan",
       type: "zip",
-      url: r2Asset("jembatan_sardjito.zip", "data"),
+      url: r2Asset("jembatan_serangan.zip", "data"),
     },
   ],
 };
