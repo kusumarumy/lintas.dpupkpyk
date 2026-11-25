@@ -627,7 +627,7 @@ function DirectoryStyles() {
       }
 
       .hero-main {
-        min-height: 350px;
+        min-height: 400px;
         display: grid;
         grid-template-columns: 1.15fr 0.85fr;
         align-items: center;
