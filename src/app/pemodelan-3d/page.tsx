@@ -289,7 +289,7 @@ export default function Pemodelan3DPage() {
             <div className="hero-main">
               <div className="hero-text">
                 <h1>
-                  3D Visualization
+                  3D Visualization <br />
                   <span>Infrastruktur Jembatan</span>
                 </h1>
 
