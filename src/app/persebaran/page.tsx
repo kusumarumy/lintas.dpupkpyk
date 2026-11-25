@@ -721,19 +721,6 @@ const handleFlyTo = (bridge: BridgeMapItem) => {
     <span className="lintas-tool-icon">ⓘ</span>
   </button>
 
-  {/* FULLSCREEN */}
-  <button
-    type="button"
-    className="lintas-map-tool"
-    title={fullscreen ? "Keluar fullscreen" : "Fullscreen"}
-    aria-label="Toggle fullscreen"
-    onClick={() => setFullscreen((value) => !value)}
-  >
-    <span className="lintas-tool-icon">
-      {fullscreen ? "⊡" : "⛶"}
-    </span>
-  </button>
-
 </div>
           <div className="lintas-map-instruction">
             Pilih aset di sidebar atau marker untuk melihat lokasi jembatan.

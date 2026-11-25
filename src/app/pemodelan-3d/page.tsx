@@ -633,7 +633,6 @@ function DirectoryStyles() {
         grid-template-columns: 1.15fr 0.85fr;
         align-items: center;
         gap: 35px;
-        padding: 34px 0 29px;
       }
 
       .hero-text h1 {

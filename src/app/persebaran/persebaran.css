@@ -1204,23 +1204,21 @@
     height: 40px !important;
   }
 }
-/* FINAL WORKSPACE POSITION FIX */
+/* =========================================
+   FINAL FULL PAGE LAYOUT
+========================================= */
 
-.lintas-persebaran-page {
-  position: relative !important;
-  width: 100% !important;
-  height: 100dvh !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
 }
 
-.lintas-persebaran-page:not(.is-fullscreen) > .lintas-workspace {
+.lintas-persebaran-page {
   position: fixed !important;
-  top: 70px !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  left: 0 !important;
+  inset: 0px 0 0 0 !important;
 
   width: 100% !important;
   height: auto !important;
@@ -1229,24 +1227,56 @@
   margin: 0 !important;
   padding: 0 !important;
   overflow: hidden !important;
-  z-index: 1 !important;
+  background: var(--bg);
 }
 
-.lintas-workspace > .lintas-map-stage {
-  position: relative !important;
+.lintas-persebaran-page > .lintas-workspace {
+  position: absolute !important;
+  inset: 0 !important;
+
+  display: grid !important;
+  grid-template-columns: 350px minmax(0, 1fr) !important;
+
+  width: 100% !important;
   height: 100% !important;
   min-height: 0 !important;
+
   margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
 }
 
-.lintas-map-stage > .lintas-map-toolbar {
+.lintas-workspace > .lintas-sidebar,
+.lintas-workspace > .lintas-map-stage {
+  min-height: 0 !important;
+  height: 100% !important;
+}
+
+.lintas-map-stage {
+  position: relative !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.lintas-map-stage > div:first-child {
   position: absolute !important;
-  top: 50% !important;
-  right: 18px !important;
-  bottom: auto !important;
-  left: auto !important;
-  transform: translateY(-50%) !important;
-  z-index: 10050 !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.lintas-map-stage .cesium-viewer,
+.lintas-map-stage .cesium-widget,
+.lintas-map-stage .cesium-widget canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+@media (max-width: 760px) {
+  .lintas-persebaran-page > .lintas-workspace {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: minmax(310px, 48%) minmax(0, 1fr) !important;
+  }
 }
 
 /* RINGKASAN TEMATIK KELURAHAN */

@@ -188,14 +188,14 @@ function DonutChart({
 }: {
   data: { label: string; count: number }[];
 }) {
-  const colors = [
-    "#0f8178",
-    "#e8a52d",
-    "#64748b",
-    "#3b82f6",
-    "#a78bfa",
-    "#df789d",
-  ];
+const colors = [
+  "#104d7b",
+  "#eab308",
+  "#3987bb",
+  "#64748b",
+  "#8badd0",
+  "#d99b42",
+];
 
   const total = data.reduce((sum, item) => sum + item.count, 0);
 

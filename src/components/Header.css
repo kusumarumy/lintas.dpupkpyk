@@ -505,3 +505,395 @@
     font-size: 18px;
   }
 }
+
+/* TOMBOL SIGN OUT */
+
+.lintas-navigation .lintas-logout {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 15px;
+  border: 1px solid rgba(0, 51, 102, 0.2);
+  border-radius: 8px;
+  background: #003366;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.lintas-navigation .lintas-logout::after {
+  display: none;
+}
+
+.lintas-navigation .lintas-logout:hover {
+  background: #b88600;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.lintas-navigation .lintas-logout:disabled {
+  opacity: 0.65;
+  cursor: wait;
+  transform: none;
+}
+
+.lintas-navigation .lintas-logout i {
+  font-size: 16px;
+}
+
+.lintas-header-home .lintas-navigation .lintas-logout {
+  flex-direction: column;
+  gap: 3px;
+  min-width: 82px;
+  height: 48px;
+  padding: 3px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #003366;
+  font-size: 13px;
+}
+
+.lintas-header-home .lintas-navigation .lintas-logout i {
+  font-size: 22px;
+}
+
+.lintas-header-home .lintas-navigation .lintas-logout:hover {
+  background: rgba(0, 51, 102, 0.08);
+  color: #b88600;
+}
+
+.lintas-logout-error {
+  position: absolute;
+  top: 100%;
+  right: 20px;
+  padding: 9px 14px;
+  border-radius: 6px;
+  background: #fff0f0;
+  color: #b42318;
+  font-size: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 992px) {
+  .lintas-navigation .lintas-logout,
+  .lintas-header-home .lintas-navigation .lintas-logout {
+    width: 100%;
+    height: auto;
+    min-height: 44px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 12px 8px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #003366;
+    font-size: 14px;
+  }
+
+  .lintas-navigation .lintas-logout:hover,
+  .lintas-header-home .lintas-navigation .lintas-logout:hover {
+    background: #f4f7fa;
+    color: #b88600;
+  }
+
+  .lintas-navigation .lintas-logout i,
+  .lintas-header-home .lintas-navigation .lintas-logout i {
+    font-size: 18px;
+  }
+}
+
+.lintas-navigation .lintas-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 15px;
+  border: 1px solid #003366;
+  border-radius: 8px;
+  background: #003366;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.lintas-navigation .lintas-login:hover {
+  background: #b88600;
+  color: white;
+}
+
+.lintas-navigation .lintas-login::after {
+  display: none;
+}
+
+.lintas-header-home .lintas-navigation .lintas-login {
+  flex-direction: column;
+  gap: 3px;
+  min-width: 82px;
+  height: 48px;
+  padding: 3px 10px;
+  border: none;
+  background: transparent;
+  color: #003366;
+}
+
+.lintas-header-home .lintas-navigation .lintas-login i {
+  font-size: 22px;
+}
+
+@media (max-width: 992px) {
+  .lintas-navigation .lintas-login,
+  .lintas-header-home .lintas-navigation .lintas-login {
+    width: 100%;
+    height: auto;
+    min-height: 44px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 12px 8px;
+    border: none;
+    background: transparent;
+    color: #003366;
+    font-size: 14px;
+  }
+
+  .lintas-navigation .lintas-login:hover {
+    background: #f4f7fa;
+    color: #b88600;
+  }
+
+  .lintas-navigation .lintas-login i {
+    font-size: 18px;
+  }
+}
+
+/* =========================================
+   LINTAS AUTH NOTIFICATION MODAL
+   ========================================= */
+
+.lintas-auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(5, 22, 43, 0.62);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  animation: lintasAuthFade 0.2s ease;
+}
+
+.lintas-auth-modal {
+  width: 100%;
+  max-width: 440px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(0, 20, 50, 0.3);
+  animation: lintasAuthEnter 0.25s ease;
+}
+
+.lintas-auth-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 19px 22px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e5eaf1;
+}
+
+.lintas-auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: #173b70;
+}
+
+.lintas-auth-brand-icon {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: #e8f0fa;
+  color: #173b70;
+  font-size: 21px;
+}
+
+.lintas-auth-brand strong,
+.lintas-auth-brand span {
+  display: block;
+}
+
+.lintas-auth-brand strong {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.lintas-auth-brand span {
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.lintas-auth-badge {
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: #fff4d5;
+  color: #936400;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.lintas-auth-content {
+  padding: 28px 28px 24px;
+  text-align: center;
+}
+
+.lintas-auth-lock {
+  width: 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 17px;
+  border: 1px solid #ffe6a0;
+  border-radius: 50%;
+  background: #fff6dc;
+  color: #d49a00;
+  font-size: 29px;
+}
+
+.lintas-auth-content h2 {
+  margin: 0 0 9px;
+  color: #173b70;
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.lintas-auth-content > p {
+  max-width: 340px;
+  margin: 0 auto 21px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.lintas-auth-destination {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  margin-bottom: 19px;
+  padding: 14px 16px;
+  border: 1px solid #e1e9f3;
+  border-radius: 12px;
+  background: #f3f7fc;
+  text-align: left;
+}
+
+.lintas-auth-destination span {
+  color: #8291a6;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.lintas-auth-destination strong {
+  color: #173b70;
+  font-size: 15px;
+}
+
+.lintas-auth-destination small {
+  color: #748399;
+  font-size: 11px;
+}
+
+.lintas-auth-primary {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 11px;
+  background: #ffc400;
+  color: #102d55;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.lintas-auth-primary:hover {
+  background: #f0b900;
+  transform: translateY(-1px);
+}
+
+.lintas-auth-secondary {
+  margin-top: 14px;
+  padding: 8px 15px;
+  border: 0;
+  background: transparent;
+  color: #55708f;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lintas-auth-secondary:hover {
+  color: #173b70;
+  text-decoration: underline;
+}
+
+@keyframes lintasAuthFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes lintasAuthEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .lintas-auth-modal {
+    max-width: 100%;
+    border-radius: 18px;
+  }
+
+  .lintas-auth-content {
+    padding: 24px 19px 20px;
+  }
+
+  .lintas-auth-content h2 {
+    font-size: 21px;
+  }
+
+  .lintas-auth-top {
+    padding: 15px;
+  }
+}

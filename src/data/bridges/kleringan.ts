@@ -1,7 +1,5 @@
-﻿
-import type { BridgeData } from "./types";
+﻿import type { BridgeData } from "./types";
 import { r2Asset } from "@/lib/assets";
-
 export const kleringan: BridgeData = {
   id: null,
   slug: "kleringan",
